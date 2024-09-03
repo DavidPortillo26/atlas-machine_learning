@@ -1,1 +1,1 @@
-not empty
+git clone failure
