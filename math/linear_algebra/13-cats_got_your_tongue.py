@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
+"""function to concatenate 2 matrices along
+    a specific axis"""
+
 
 import numpy as np
-np_cat = __import__('13-cats_got_your_tongue').np_cat
 
-mat1 = np.array([[11, 22, 33], [44, 55, 66]])
-mat2 = np.array([[1, 2, 3], [4, 5, 6]])
-mat3 = np.array([[7], [8]])
-print(np_cat(mat1, mat2))
-print(np_cat(mat1, mat2, axis=1))
-print(np_cat(mat1, mat3, axis=1))
+
+def np_cat(mat1, mat2, axis=0):
+    """ concatenate two matrices
+     with an specific axis
+
+    Args:
+        mat1, mat2: Given matrices
+        axis: Given axis
+
+    Return:
+        the new mat: new_mat
+
+    """
+    mat_a = np.array(mat1)
+    mat_b = np.array(mat2)
+    new_mat = np.concatenate((mat_a, mat_b), axis)
+    return new_mat
