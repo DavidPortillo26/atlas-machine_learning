@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 
 y = np.arange(0, 11) ** 3
 
-plt.plot(y, 'r-')
-plt.axis([0, 10, None, None])
-plt.show()
+line_plot = plt.plot(y, 'r-')
+
+# Save the figure
+plt.savefig('0-line.png')
+
+# Close the plot
+plt.close()
