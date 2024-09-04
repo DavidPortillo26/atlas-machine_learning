@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """function that integrates a poly f(x)"""
 
