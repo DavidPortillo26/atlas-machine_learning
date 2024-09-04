@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+""" Recursion function to check the shape of the matrix"""
 
-matrix_shape = __import__('2-size_me_please').matrix_shape
 
-mat1 = [[1, 2], [3, 4]]
-print(matrix_shape(mat1))
-mat2 = [[[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]],
-        [[16, 17, 18, 19, 20], [21, 22, 23, 24, 25], [26, 27, 28, 29, 30]]]
-print(matrix_shape(mat2))
+def matrix_shape(matrix):
+    """ return the shape of a matrix """
+    if type(matrix[0]) != list:
+        return [len(matrix)]
+    else:
+        return [len(matrix)] + matrix_shape(matrix[0])
