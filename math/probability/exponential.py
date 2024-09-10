@@ -25,3 +25,15 @@ class Exponential():
                 raise ValueError("data must contain multiple values")
             else:
                 self.lambtha = (1 / (sum(data) / len(data)))
+
+    def pdf(self, x):
+        """
+        Method Probability Density function
+        k: integer value of the data
+        return: PDF
+        """
+        if x < 0:
+            return 0
+        else:
+            pdf = self.lambtha * (Exponential.e**((-self.lambtha) * x))
+            return pdf
