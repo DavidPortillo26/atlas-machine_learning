@@ -37,3 +37,13 @@ class Exponential():
         else:
             pdf = self.lambtha * (Exponential.e**((-self.lambtha) * x))
             return pdf
+
+    def cdf(self, x):
+        """
+        Method Cumulative distribution function
+        k: integer value of the data
+        return: CDF
+        """
+        if x < 0:
+            return 0
+        return 1 - (Exponential.e**((-self.lambtha) * x))
