@@ -51,3 +51,13 @@ class Normal():
         return: x_value
         """
         return self.stddev * z + self.mean
+
+    def pdf(self, x):
+        """
+        x: the x parameter of the function
+        return: Probability Density Function
+        """
+
+        p1 = 1 / (self.stddev * ((2 * Normal.pi) ** 0.5))
+        p2 = ((x - self.mean) ** 2) / (2 * (self.stddev ** 2))
+        return p1 * Normal.e ** (-p2)
