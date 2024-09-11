@@ -36,3 +36,18 @@ class Normal():
                 x = (data[i] - self.mean) ** 2
                 sigma += x
             self.stddev = (sigma / len(data)) ** (1 / 2)
+
+    def z_score(self, x):
+        """
+        x: x_value of the function
+        return: the z_score
+        """
+
+        return (x - self.mean) / self.stddev
+
+    def x_value(self, z):
+        """
+        z: z value of the x value replica
+        return: x_value
+        """
+        return self.stddev * z + self.mean
