@@ -38,3 +38,28 @@ class Binomial():
             self.p = 1 - (variance / mean)
             self.n = int(round(mean / self.p))
             self.p = mean / self.n
+
+    def pmf(self, k):
+        """
+        Method Probability Mass Function for binomial
+        k: integer value of the data
+        return: PMF
+        """
+
+        k = int(k)
+        factor_k = 1
+        factor_n = 1
+        factor_c = 1
+        if k > self.n or k < 0:
+            return 0
+        else:
+            for i in range(1, k + 1):
+                factor_k *= i
+            for j in range(1, self.n + 1):
+                factor_n *= j
+            for f in range(1, (self.n - k) + 1):
+                factor_c *= f
+            comb = factor_n / (factor_c * factor_k)
+            prob = (self.p ** k) * ((1 - self.p) ** (self.n - k))
+            pmf = comb * prob
+        return pmf
