@@ -18,7 +18,11 @@ def create_layer(prev, n, activation):
     # Average number of inputs and output connections.
     initializer = tf.contrib.layers.variance_scaling_initializer(
         mode='FAN_AVG')
-    layer = tf.layers.Dense(units=n, activation=activation,
-                            kernel_initializer=initializer,
-                            name='layer')
+    layer = tf.layers.Dense(
+        activation=activation,
+        name="layer",
+        units=n,
+        kernel_initializer=tf.keras.initializers.VarianceScaling(
+            mode='fan_avg')
+    )
     return layer(prev)
