@@ -16,7 +16,8 @@ def create_momentum_op(alpha, beta1):
         A TensorFlow optimizer object configured
         for momentum optimization.
     """
-    # Create the optimizer using Stochastic Gradient Descent (SGD) with momentum
+    # Create the optimizer using Stochastic
+    # Gradient Descent (SGD) with momentum
     optimizer = tf.optimizers.SGD(learning_rate=alpha, momentum=beta1)
 
     return optimizer
