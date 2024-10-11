@@ -22,6 +22,7 @@ def create_RMSProp_op(alpha, beta2, epsilon):
         configured with the provided parameters.
     """
     # Create the RMSProp optimizer using the provided parameters
-    optimizer = tf.optimizers.RMSprop(learning_rate=alpha, rho=beta2, epsilon=epsilon)
+    optimizer = tf.optimizers.RMSprop
+    (learning_rate=alpha, rho=beta2, epsilon=epsilon)
 
     return optimizer
