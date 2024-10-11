@@ -31,7 +31,8 @@ def create_mini_batches(X, Y, batch_size):
         # Select the next 'batch_size' data points for X and Y
         X_batch = X[i:i + batch_size]
         Y_batch = Y[i:i + batch_size]
-        # Append the batch as a tuple (X_batch, Y_batch) to the list of mini-batches
+        # Append the batch as a tuple (X_batch, Y_batch) 
+        # to the list of mini-batches
         mini_batches.append((X_batch, Y_batch))
 
     return mini_batches
