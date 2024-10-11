@@ -17,7 +17,7 @@ def create_mini_batches(X, Y, batch_size):
         batch_size: number of data points per batch
 
     Returns:
-        List of mini-batches, where each mini-batch 
+        List of mini-batches, where each mini-batch
         is a tuple (X_batch, Y_batch)
     """
     # Shuffle the data
