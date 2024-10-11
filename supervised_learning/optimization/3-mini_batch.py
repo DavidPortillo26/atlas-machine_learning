@@ -2,6 +2,7 @@
 import numpy as np
 shuffle_data = __import__('2-shuffle_data').shuffle_data
 
+
 def create_mini_batches(X, Y, batch_size):
     """
     Creates mini-batches for mini-batch gradient descent.
@@ -16,7 +17,8 @@ def create_mini_batches(X, Y, batch_size):
         batch_size: number of data points per batch
 
     Returns:
-        List of mini-batches, where each mini-batch is a tuple (X_batch, Y_batch)
+        List of mini-batches, where each mini-batch 
+        is a tuple (X_batch, Y_batch)
     """
     # Shuffle the data
     X, Y = shuffle_data(X, Y)
