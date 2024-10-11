@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
-"""update variable using the gradient descent w/ momentum optimization algo"""
+"""Set up gradient descent with momentum optimization algorithm in TensorFlow."""
 import tensorflow as tf
 
 
-def create_momentum_op(loss, alpha, beta1):
-    """training op for neural network in tensorflow using
-    gradient descent with momentum optimization algorithm
-    @loss: loss of the network
-    @alpha: learning rate
-    @beta1: momentum weight
-    Return: the momentum optimization operation
+def create_momentum_op(alpha, beta1):
     """
-    return tf.train.MomentumOptimizer(alpha, beta1).minimize(loss)
+    Creates a TensorFlow optimizer using gradient descent with momentum.
+
+    Args:
+        alpha: Learning rate (scalar).
+        beta1: Momentum weight (scalar).
+
+    Returns:
+        A TensorFlow optimizer object configured for momentum optimization.
+    """
+    # Create the optimizer using Stochastic Gradient Descent (SGD) with momentum
+    optimizer = tf.optimizers.SGD(learning_rate=alpha, momentum=beta1)
+    
+    return optimizer
