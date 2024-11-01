@@ -1,45 +1,59 @@
 #!/usr/bin/env python3
-"""Script to implement dropout in a gradient descent"""
+"""
+Defines function that updates the weights with Dropout regularization
+using gradient descent
+"""
 
 import numpy as np
 
 
 def dropout_gradient_descent(Y, weights, cache, alpha, keep_prob, L):
     """
-    Function to use dropout in a gradient descent optimization model
-    Args:
-        Y: one-hot numpy.ndarray of shape (classes, m) that contains
-            the correct labels for the data
-            classes: is the number of classes
-            m: is the number of data points
-        weights: dictionary of the weights and biases
-                 of the neural network
-        cache: dictionary of the outputs and dropout masks of each
-               layer of the neural network
-        alpha: learning rate
-        keep_prob: probability that a node will be kept
-        L: number of layers of the network
+    Updates the weights with Dropout regularization using gradient descent
 
-    Returns:
+    parameters:
+        Y [one-hot numpy.ndarray of shape (classes, m)]:
+            contains the correct labels for the data
+            classes: number of classes
+            m: number of data points
+        weights [dict]:
+            contains the weights and biases of the network
+        cache [dict]:
+            contains the outputs and dropout masks of each layer
+        alpha [float]:
+            learning rate
+        keep_prob [float]:
+            the probability that a node will be kept
+        L [int]:
+            number of layers in the network
 
+    all layers should use the tanh activation function except last
+    last layer should use softmax activation function
+
+    the weights of the network should be updated in place
     """
     m = Y.shape[1]
-    W_copy = weights.copy()
+    back = {}
+    for index in range(L, 0, -1):
+        A = cache["A{}".format(index - 1)]
+        if index == L:
+            back["dz{}".format(index)] = (cache["A{}".format(index)] - Y)
+            dz = back["dz{}".format(index)]
 
-    for i in reversed(range(L)):
-        A = cache["A" + str(i + 1)]
-        if i == L - 1:
-            dZ = A - Y
-            dW = (np.matmul(cache["A" + str(i)], dZ.T) / m).T
-            db = np.sum(dZ, axis=1, keepdims=True) / m
         else:
-            dW2 = np.matmul(W_copy["W" + str(i + 2)].T, dZ2)
-            dtanh = 1 - (A * A)
-            dZ = dW2 * dtanh
-            dZ = dZ * cache["D" + str(i + 1)]
-            dZ = dZ / keep_prob
-            dW = np.matmul(dZ, cache["A" + str(i)].T) / m
-            db = np.sum(dZ, axis=1, keepdims=True) / m
-        weights["W" + str(i + 1)] = (W_copy["W" + str(i + 1)] - (alpha * dW))
-        weights["b" + str(i + 1)] = W_copy["b" + str(i + 1)] - (alpha * db)
-        dZ2 = dZ
+            dz_prev = back["dz{}".format(index + 1)]
+            A_current = cache["A{}".format(index)]
+            back["dz{}".format(index)] = (
+                np.matmul(W_prev.transpose(), dz_prev) *
+                (A_current * (1 - A_current)))
+            dz = back["dz{}".format(index)]
+            dz *= cache["D{}".format(index)]
+            dz /= keep_prob
+
+        dW = (1 / m) * (np.matmul(dz, A.transpose()))
+        db = (1 / m) * np.sum(dz, axis=1, keepdims=True)
+        W_prev = weights["W{}".format(index)]
+        weights["W{}".format(index)] = (
+            weights["W{}".format(index)] - (alpha * dW))
+        weights["b{}".format(index)] = (
+            weights["b{}".format(index)] - (alpha * db))

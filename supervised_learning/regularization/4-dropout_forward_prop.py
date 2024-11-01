@@ -1,47 +1,49 @@
 #!/usr/bin/env python3
-"""Script to implement dropout in a forward propagation"""
+"""
+Defines function that conducts forward propagation using Dropout
+"""
+
 
 import numpy as np
 
 
 def dropout_forward_prop(X, weights, L, keep_prob):
     """
-    Function that uses dropout in a forward propagation
-    DNN
-    Args:
-        X: numpy.ndarray of shape (nx, m) containing
-            the input data for the network
-            nx: is the number of input features
-            m: is the number of data points
-        weights: dictionary of the weights and biases
-        of the neural network
-        L: number of layers in the network
-        keep_prob: probability that a node will be kept
+    Conducts forward propagation using Dropout
 
-        All layers except the last should use the tanh activation function
-The last layer should use the softmax activation function
+    parameters:
+        X [numpy.ndarray of shape(nx, m)]:
+            contains the input data for the network
+            nx: number of input features
+            m: number of data points
+        weights [dict]:
+            contains weights and biases of the network
+        L [int]:
+            number of layers in the network
+        keep_prob [float]:
+            probability that a node will be kept
 
-    Returns:
+    all layers except last should use tanh activation function
+    last layer should use softmax activation function
 
+    returns:
+        dictionary containing the outputs of each layer and
+            the dropout mask used on each layer
     """
-    cache = {}  # dict that holds intermediate values of the network
-    cache['A0'] = X
-    for layer in range(L):
-        W = weights["W" + str(layer + 1)]
-        A = cache["A" + str(layer)]
-        B = weights["b" + str(layer + 1)]
-        Z = np.matmul(W, A) + B
-        dropout = np.random.rand(Z.shape[0], Z.shape[1])
-        dropout = np.where(dropout < keep_prob, 1, 0)
-        # dropout = np.random.binomial(1, keep_prob, size=Z.shape)
-        if layer == L - 1:
-            softmax = np.exp(Z)
-            cache["A" + str(layer + 1)] = (softmax / np.sum(softmax, axis=0,
-                                                            keepdims=True))
+    outputs = {}
+    outputs["A0"] = X
+    for index in range(L):
+        weight = weights["W{}".format(index + 1)]
+        bias = weights["b{}".format(index + 1)]
+        z = np.matmul(weight, outputs["A{}".format(index)]) + bias
+        dropout = np.random.binomial(1, keep_prob, size=z.shape)
+        if index != (L - 1):
+            A = np.tanh(z)
+            A *= dropout
+            A /= keep_prob
+            outputs["D{}".format(index + 1)] = dropout
         else:
-            tanh = np.tanh(Z)
-            cache["A" + str(layer + 1)] = tanh
-            cache["D" + str(layer + 1)] = dropout
-            cache["A" + str(layer + 1)] *= dropout
-            cache["A" + str(layer + 1)] /= keep_prob
-    return cache
+            A = np.exp(z)
+            A /= np.sum(A, axis=0, keepdims=True)
+        outputs["A{}".format(index + 1)] = A
+    return outputs
