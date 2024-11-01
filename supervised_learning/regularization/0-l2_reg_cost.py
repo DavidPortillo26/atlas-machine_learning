@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
-"""Script to use L2 regularization in a DNN"""
+"""
+Defines a function that calculates the cost of a neural network
+using L2 Regularization
+"""
 
 import numpy as np
 
 
 def l2_reg_cost(cost, lambtha, weights, L, m):
     """
-    Fucntion to implement L2 regularization
-    Args:
-        cost: cost of the network without L2 regularization
+    Calculates the cost of a neural network with L2 regularization
+
+    parameters:
+        cost: the cost of the network without L2 regularization
         lambtha: the regularization parameter
-        weights: dictionary of the weights and biases
-                (numpy.ndarrays) of the neural network
-        L: number of layers in the neural network
-        m: number of data points used
+        weights: a dictionary of the weights and biases of the neural network
+        L: the number of layers in the neural network
+        m: the number of data points used
 
-    Returns: cost of the network accounting for L2 regularization
-
+    returns:
+        the cost of the network accounting for L2 regularization
     """
-    norm = 0
-    for key, values in weights.items():
-        if key[0] == 'W':
-            norm = norm + np.linalg.norm(values)
-    L2_cost = cost + (lambtha / (2 * m) * norm)
-    return L2_cost
+    weights_squared = 0
+    for i in range(1, L + 1):
+        level_weight = weights["W{}".format(i)]
+        # squared = np.matmul(level_weight.transpose(), level_weight)
+        weights_squared += np.linalg.norm(level_weight)
+    l2_reg_cost = cost + ((lambtha / (2 * m)) * weights_squared)
+    return l2_reg_cost

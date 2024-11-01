@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Script to update wieghts and biases of a DNN
-    with gradient descent and L2 regularization
+"""
+Defines a function that updates the weights and biases
+using gradient descent with L2 Regularization
 """
 
 import numpy as np
@@ -8,38 +9,43 @@ import numpy as np
 
 def l2_reg_gradient_descent(Y, weights, cache, alpha, lambtha, L):
     """
-    Function to implement L2 regulatization using gradient descent
-    Args:
-        Y: one-hot numpy.ndarray of shape (classes, m)
-            that contains the correct labels for the data
-            classes: is the number of classes
-            m: is the number of data points
-        weights: dictionary of the weights and biases of the neural network
-        cache: dictionary of the outputs of each layer of the neural network
-        alpha: learning rate
-        lambtha: L2 regularization parameter
-        L: number of layers of the network
+    Updates weights and biases using gradient descent with L2 regularization
 
-    Returns: Cost of the network accounting for L2 regularization
+    parameters:
+        Y [one-hot numpy.ndarray of shape (classes, m)]:
+            contains the correct labels for the data
+            classes: number of classes
+            m: number of data points
+        weights [dict]: dictionary of weights and biases for the network
+        cache [dict]: dictionary of the outputs of each layer of the network
+        alpha [float]: learning rate
+        lambtha: the regularization parameter
+        L: the number of layers in the neural network
 
+    Neural network using tanh activations on each layer except the last.
+    Last layer uses softmax activation.
     """
     m = Y.shape[1]
-    W_copy = weights.copy()
-
-    for i in reversed(range(L)):
-        A = cache["A" + str(i + 1)]
-        if i == L - 1:
-            dZ = cache["A" + str(i + 1)] - Y
-            dW = (np.matmul(cache["A" + str(i)], dZ.T) / m).T
-            dW_L2 = dW + (lambtha / m) * W_copy["W" + str(i + 1)]
-            db = np.sum(dZ, axis=1, keepdims=True) / m
+    back = {}
+    for index in range(L, 0, -1):
+        A = cache["A{}".format(index - 1)]
+        if index == L:
+            back["dz{}".format(index)] = (cache["A{}".format(index)] - Y)
         else:
-            dW2 = np.matmul(W_copy["W" + str(i + 2)].T, dZ2)
-            tanh = 1 - (A * A)
-            dZ = dW2 * tanh
-            dW = np.matmul(dZ, cache["A" + str(i)].T) / m
-            dW_L2 = dW + (lambtha / m) * W_copy["W" + str(i + 1)]
-            db = np.sum(dZ, axis=1, keepdims=True) / m
-        weights["W" + str(i + 1)] = (W_copy["W" + str(i+1)] - (alpha * dW_L2))
-        weights["b" + str(i + 1)] = W_copy["b" + str(i + 1)] - (alpha * db)
-        dZ2 = dZ
+            dz_prev = back["dz{}".format(index + 1)]
+            A_current = cache["A{}".format(index)]
+            back["dz{}".format(index)] = (
+                np.matmul(W_prev.transpose(), dz_prev) *
+                (A_current * (1 - A_current)))
+        dz = back["dz{}".format(index)]
+        dW = (1 / m) * (
+            (np.matmul(dz, A.transpose())) + (
+                lambtha * weights["W{}".format(index)]))
+        db = (1 / m) * (
+            (np.sum(dz, axis=1, keepdims=True)) + (
+                lambtha * weights["b{}".format(index)]))
+        W_prev = weights["W{}".format(index)]
+        weights["W{}".format(index)] = (
+            weights["W{}".format(index)] - (alpha * dW))
+        weights["b{}".format(index)] = (
+            weights["b{}".format(index)] - (alpha * db))
