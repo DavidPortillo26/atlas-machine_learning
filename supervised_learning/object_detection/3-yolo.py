@@ -150,7 +150,7 @@ class Yolo():
         c = []
         s = []
 
-        for i in (np.unique(box_classes)) :
+        for i in (np.unique(box_classes)):
 
             idx = np.where(box_classes == i)
             filters = filtered_boxes[idx]
