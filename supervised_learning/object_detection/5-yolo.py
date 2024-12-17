@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 def preprocess_images(self, images):
     """
     Resizes and rescales the images before processing
