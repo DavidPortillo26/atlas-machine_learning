@@ -16,7 +16,8 @@ def posterior(x, n, P, Pr):
         Pr: 1D numpy.ndarray containing the prior beliefs of P
 
     Returns:
-        1D numpy.ndarray containing the posterior probabilities of P given x and n
+        1D numpy.ndarray containing the posterior 
+        probabilities of P given x and n
     """
     if not isinstance(n, int) or n <= 0:
         raise ValueError("n must be a positive integer")
