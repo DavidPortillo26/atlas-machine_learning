@@ -2,7 +2,6 @@
 """ PCA """
 import numpy as np
 
-
 def pca(X, ndim):
     """ performs PCA on a dataset """
     X_m = X - X.mean(axis=0)
