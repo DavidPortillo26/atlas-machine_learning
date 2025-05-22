@@ -39,13 +39,13 @@ def expectation_maximization(X,
     """
     if not isinstance(X, np.ndarray) or len(X.shape) != 2:
         return None, None, None, None, None
-    if type(k) != int or k <= 0 or X.shape[0] < k:
+    if isinstance(k) != int or k <= 0 or X.shape[0] < k:
         return None, None, None, None, None
-    if type(iterations) != int or iterations <= 0:
+    if isinstance(iterations) != int or iterations <= 0:
         return None, None, None, None, None
-    if type(tol) != float or tol < 0:
+    if isinstance(tol) != float or tol < 0:
         return None, None, None, None, None
-    if type(verbose) != bool:
+    if isinstance(verbose) != bool:
         return None, None, None, None, None
 
     pi, m, S = initialize(X, k)
