@@ -9,7 +9,7 @@ def pca(X, var=0.95):
     n = 0
     s_var = s.sum() * var
     tot = s[0]
-    while(tot < s_var): 
+    while (tot < s_var):
         n += 1
         tot += s[n]
     return vh[:n+1].T
