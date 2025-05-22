@@ -37,7 +37,6 @@ def posterior(x, n, P, Pr):
     if not np.isclose(np.sum(Pr), 1):
         raise ValueError("Pr must sum to 1")
 
-    # Calculate binomial coefficient manually (no extra imports)
     factorial = 1
     for i in range(1, n + 1):
         factorial *= i
@@ -53,7 +52,6 @@ def posterior(x, n, P, Pr):
     intersection = likelihoods * Pr
     marginal = np.sum(intersection)
 
-    # Posterior: intersection divided by marginal
     posterior_prob = intersection / marginal
 
     return posterior_prob
