@@ -1,39 +1,39 @@
 #!/usr/bin/env python3
-""" Absorbing Markov chain"""
+""" Absorbing Markov chain """
 
 import numpy as np
 
 
 def absorbing(P):
     """
-    Function that determines if a markov chain is absorbing
+    Determines if a Markov chain is absorbing
     Args:
-        P: 2D numpy.ndarray of shape (n, n) representing the transition matrix
-           P[i, j]: is the probability of transitioning from state i to state j
-           n: the number of states in the markov chain
-    Returns: True if it is absorbing, or False on failure
+        P: numpy.ndarray of shape (n, n) - the transition matrix
+    Returns:
+        True if absorbing, False if not, None on failure
     """
-    if len(P.shape) != 2:
+    if not isinstance(P, np.ndarray) or len(P.shape) != 2:
         return None
-    n1, n2 = P.shape
-    if (n1 != n2) or type(P) is not np.ndarray:
+    n, m = P.shape
+    if n != m:
         return None
-    D = np.diagonal(P)
-    if (D == 1).all():
-        return True
-    if not (D == 1).any():
+
+    absorbing_states = []
+    for i in range(n):
+        if P[i, i] == 1 and np.sum(P[i]) == 1:
+            absorbing_states.append(i)
+
+    if not absorbing_states:
         return False
 
-    # formula t=(I-Q)^-1 1
-    # approach using Neumman series: t = (∑ inf k=0 * Q^k) * 1
-    # suggested implementation based on: https://stackoverflow.com/
-    # questions/45164505/best-iterative-way-to-calculate-the-fundamental-matrix-
-    # of-an-absorbing-markov-ch
-    for i in range(n1):
-        # print('this is Pi {}'.format(P[i]))
-        for j in range(n2):
-            # print('this is Pj {}'.format(P[j]))
-            if (i == j) and (i + 1 < len(P)):
-                if P[i + 1][j] == 0 and P[i][j + 1] == 0:
-                    return False
+    # Build reachability matrix using powers of P
+    reachable = np.copy(P)
+    for _ in range(n):
+        reachable = np.dot(reachable, P)
+
+    for i in range(n):
+        if i not in absorbing_states:
+            if not any(reachable[i][j] > 0 for j in absorbing_states):
+                return False
+
     return True
