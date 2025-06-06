@@ -15,7 +15,8 @@ def forward(Observation, Emission, Transition, Initial):
             Index of each observation
         Emission (np.ndarray): shape (N, M)
             Emission probabilities:
-            Emission[i, j] is the probability of observing j from hidden state i
+            Emission[i, j] is the probability of observing j 
+            from hidden state i
         Transition (np.ndarray): shape (N, N)
             Transition probabilities:
             Transition[i, j] is the probability of transitioning from i to j
