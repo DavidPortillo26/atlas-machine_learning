@@ -3,14 +3,9 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 # Input sentences
 sentences = [
-    "Holberton school is awesome",
-    "Holberton school is the future",
-    "Holberton school is the best school",
-    "Holberton school is not the best school",
-    "My children are learning at Holberton school",
-    "My grandchildren are learning at Holberton school",
-    "My children are not learning at Holberton school",
-    "My grandchildren are not learning at Holberton school"
+    'are' 'awesome' 'beautiful' 'cake' 'children' 'future' 'good'
+ 'grandchildren' 'holberton' 'is' 'learning' 'life' 'machine' 'nlp' 'no'
+ 'not' 'one' 'our' 'said' 'school' 'that' 'the' 'very' 'was'
 ]
 
 # Create CountVectorizer with custom token pattern to exclude 's'
