@@ -9,12 +9,10 @@ def bag_of_words(sentences, vocab=None):
     tokenized_sentences = [tokenize(sentence) for sentence in sentences]
 
     if vocab is None:
-        # Extract all unique words and sort them alphabetically
         all_words = set(word for sentence in tokenized_sentences for word in sentence)
-        features = np.array(sorted(all_words))
+        features = np.array(sorted(all_words), dtype=object)  # force dtype to object
     else:
-        # Normalize provided vocab and sort it
-        features = np.array(sorted(set(word.lower() for word in vocab)))
+        features = np.array(sorted(set(word.lower() for word in vocab)), dtype=object)
 
     word_index = {word: i for i, word in enumerate(features)}
     embeddings = np.zeros((len(sentences), len(features)), dtype=int)
