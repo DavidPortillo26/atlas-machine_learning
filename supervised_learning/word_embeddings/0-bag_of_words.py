@@ -3,7 +3,7 @@
     NLP - Word Embeddings
 """
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 def bag_of_words(sentences, vocab=None):
@@ -17,6 +17,6 @@ def bag_of_words(sentences, vocab=None):
                 f is the number of features analyzed
             features list of the features used for embeddings
     """
-    Vectorizer = text.CountVectorizer(vocabulary=vocab)
+    Vectorizer = CountVectorizer(vocabulary=vocab)
     embeddings = Vectorizer.fit_transform(sentences)
     return embeddings.toarray(), Vectorizer.get_feature_names_out().tolist()
