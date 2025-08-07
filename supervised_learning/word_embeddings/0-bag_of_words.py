@@ -20,8 +20,8 @@ def bag_of_words(sentences, vocab=None):
     vectorizer = CountVectorizer(
         vocabulary=vocab,
         lowercase=True,
-        stop_words='english',       # removes common English stopwords
-        token_pattern=r'\b\w+\b'    # matches whole words only
+        token_pattern=r'\b\w+\b'  # matches whole words only
+        # stop_words removed to match expected output
     )
     
     embeddings = vectorizer.fit_transform(sentences)
