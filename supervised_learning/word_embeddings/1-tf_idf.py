@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-"""tf-idf"""
+"""tf_idf technique"""
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-def tf_idf(sentences, vocab=None):
 
+def tf_idf(sentences, vocab=None):
     """
-    tf-idf function
+    tf_idf
     Args:
-        sentences: list of sentences to be processed
-        vocab: list of words to be used as vocabulary (default=None)
-    Returns:
-        embeddings: numpy.ndarray of shape (s, v) containing the embeddings
-            s: number of sentences in sentences
-            v: size of the vocabulary
+        sentences: list of sentences to analize
+        vocab: list of the vocabulary words to use for the analysis
+    Returns: embeddings, features
     """
     if vocab is None:
         vectorizer = TfidfVectorizer()
@@ -22,6 +19,6 @@ def tf_idf(sentences, vocab=None):
     else:
         vectorizer = TfidfVectorizer(vocabulary=vocab)
         X = vectorizer.fit_transform(sentences)
-    embeddings = X.toarray()
+    embedding = X.toarray()
 
-    return embeddings, vocab
+    return embedding, vocab
