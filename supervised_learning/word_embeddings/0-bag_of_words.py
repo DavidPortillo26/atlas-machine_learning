@@ -3,9 +3,30 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 # Input sentences
 sentences = [
-    'are' 'awesome' 'beautiful' 'cake' 'children' 'future' 'good'
- 'grandchildren' 'holberton' 'is' 'learning' 'life' 'machine' 'nlp' 'no'
- 'not' 'one' 'our' 'said' 'school' 'that' 'the' 'very' 'was'
+'are' 
+'awesome' 
+'beautiful' 
+'cake' 
+'children' 
+'future' 
+'good'
+'grandchildren' 
+'holberton' 
+'is' 
+'learning' 
+'life' 
+'machine'
+'nlp' 
+'no'
+'not' 
+'one' 
+'our' 
+'said'
+'school'
+'that' 
+'the' 
+'very'
+'was'
 ]
 
 # Create CountVectorizer with custom token pattern to exclude 's'
