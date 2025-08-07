@@ -8,16 +8,14 @@ def bag_of_words(sentences, vocab=None):
     Creates a bag-of-words embedding matrix from a list of sentences.
 
     Args:
-        sentences (list): A list of sentences (strings) to analyze.
-        vocab (list, optional): A list of vocabulary words to use. If None,
-                                all unique words from the sentences are used.
+        sentences (list): List of sentences (strings) to analyze.
+        vocab (list, optional): Vocabulary words to use. If None,
+            all unique words from the sentences are used.
 
     Returns:
-        tuple:
-            - embeddings (numpy.ndarray):
-            Array of shape (s, f) with word frequencies.
-            - features (numpy.ndarray):
-            Array of shape (f,) with the feature words.
+        tuple: (embeddings, features)
+            embeddings (numpy.ndarray): Array of shape (s, f) with word frequencies.
+            features (numpy.ndarray): Array of shape (f,) with the feature words.
     """
     def tokenize(text):
         """Tokenize a sentence into lowercase words."""
