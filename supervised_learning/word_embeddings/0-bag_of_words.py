@@ -5,19 +5,26 @@
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 
-
 def bag_of_words(sentences, vocab=None):
-    """ Creates a bag of words embedding matrix
-        sentences is a list of sentences to analyze
-        vocab is a list of the vocabulary words to use for the analysis
-            If None, all words within sentences should be used
-        Returns: embeddings, features
-            embeddings ndarray (s, f) containing the embeddings
-                s is the number of sentences in sentences
-                f is the number of features analyzed
-            features list of the features used for embeddings
     """
-    Vectorizer = CountVectorizer(vocabulary=vocab)
-    embeddings = Vectorizer.fit_transform(sentences)
-    print(np.array(features))
-    return embeddings.toarray(), Vectorizer.get_feature_names_out().tolist()
+    Creates a bag of words embedding matrix with preprocessing.
+    
+    Parameters:
+    - sentences: list of strings
+    - vocab: list of vocabulary words to use (optional)
+    
+    Returns:
+    - embeddings: ndarray of shape (s, f)
+    - features: list of feature names used
+    """
+    vectorizer = CountVectorizer(
+        vocabulary=vocab,
+        lowercase=True,
+        stop_words='english',       # removes common English stopwords
+        token_pattern=r'\b\w+\b'    # matches whole words only
+    )
+    
+    embeddings = vectorizer.fit_transform(sentences)
+    features = vectorizer.get_feature_names_out().tolist()
+    
+    return embeddings.toarray(), features
