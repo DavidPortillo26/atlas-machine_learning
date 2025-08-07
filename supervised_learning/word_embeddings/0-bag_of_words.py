@@ -19,4 +19,5 @@ def bag_of_words(sentences, vocab=None):
     """
     Vectorizer = CountVectorizer(vocabulary=vocab)
     embeddings = Vectorizer.fit_transform(sentences)
+    print(np.array(features))
     return embeddings.toarray(), Vectorizer.get_feature_names_out().tolist()
