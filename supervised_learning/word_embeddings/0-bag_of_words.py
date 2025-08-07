@@ -14,8 +14,10 @@ def bag_of_words(sentences, vocab=None):
 
     Returns:
         tuple: (embeddings, features)
-            embeddings (numpy.ndarray): Array of shape (s, f) with word frequencies.
-            features (numpy.ndarray): Array of shape (f,) with the feature words.
+            embeddings (numpy.ndarray):
+            Array of shape (s, f) with word frequencies.
+            features (numpy.ndarray):
+            Array of shape (f,) with the feature words.
     """
 
     def tokenize(text):
