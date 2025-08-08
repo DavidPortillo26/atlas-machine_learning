@@ -23,5 +23,5 @@ def word2vec_model(
         seed=seed,
         workers=workers
     )
-    model.train(sentences, total_examples=len(sentences), epochs=epochs)
+    
     return model
