@@ -1,34 +1,48 @@
 #!/usr/bin/env python3
-"""word2vec technique"""
+from gensim.models import Word2Vec
 
-import gensim
-
-
-def word2vec_model(sentences, size=100, min_count=5,
-                   window=5, negative=5, cbow=True,
-                   iterations=5, seed=0, workers=1):
+def word2vec_model(
+    sentences,
+    vector_size=100,
+    min_count=5,
+    window=5,
+    negative=5,
+    cbow=True,
+    epochs=5,
+    seed=0,
+    workers=1
+):
     """
-    word2vec using gensim
+    Creates, builds, and trains a gensim Word2Vec model.
+    
     Args:
-        sentences: list of sentences to be trained on
-        size: dimensionality of the embedding layer
-        min_count: the minimum number of occurrences of a
-                    word for use in training
-        window: maximum distance between the current and
-                predicted word within a sentence
-        negative: the size of negative sampling
-        cbow: boolean to determine the training type; True
-              is for CBOW; False is for Skip-gram
-        iterations:  number of iterations to train over
-        seed: seed for the random number generator
-        workers: number of worker threads to train the model
-    Returns: the trained model
+        sentences (list of list of str): Tokenized sentences for training.
+        vector_size (int): Dimensionality of embedding layer.
+        min_count (int): Minimum word occurrences for inclusion.
+        window (int): Max distance between current and predicted word.
+        negative (int): Number of negative samples.
+        cbow (bool): True for CBOW, False for Skip-gram.
+        epochs (int): Number of iterations over corpus.
+        seed (int): Random seed.
+        workers (int): Number of worker threads.
+    
+    Returns:
+        gensim.models.Word2Vec: The trained model.
     """
-    model = gensim.models.Word2Vec(sentences, min_count=min_count,
-                                   iter=iterations, size=size,
-                                   window=window, negative=negative,
-                                   seed=seed, sg=cbow, workers=workers)
-    model.train(sentences, total_examples=model.corpus_count,
-                epochs=model.iter)
-
+    
+    sg = 0 if cbow else 1  # gensim uses sg=0 for CBOW, sg=1 for Skip-gram
+    
+    model = Word2Vec(
+        sentences=sentences,
+        vector_size=vector_size,
+        window=window,
+        min_count=min_count,
+        negative=negative,
+        sg=sg,
+        seed=seed,
+        workers=workers
+    )
+    
+    model.train(sentences, total_examples=len(sentences), epochs=epochs)
+    
     return model
