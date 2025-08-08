@@ -29,4 +29,6 @@ def word2vec_model(
         epochs=epochs
     )
 
+     model.train(sentences, total_examples=len(sentences), epochs=epochs)
+
     return model
