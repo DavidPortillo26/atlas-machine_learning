@@ -17,21 +17,16 @@ def word2vec_model(
     """
     sg = 0 if cbow else 1
 
-    # Initialize model without training
     model = gensim.models.Word2Vec(
+        sentences=sentences,
         vector_size=vector_size,
         window=window,
         min_count=min_count,
         negative=negative,
         sg=sg,
         seed=seed,
-        workers=workers
+        workers=workers,
+        epochs=epochs
     )
-
-    # Build vocabulary deterministically
-    model.build_vocab(sentences)
-
-    # Train the model
-    model.train(sentences, total_examples=len(sentences), epochs=epochs)
 
     return model
