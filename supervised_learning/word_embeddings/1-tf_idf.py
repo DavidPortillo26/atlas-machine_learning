@@ -9,7 +9,8 @@ def tf_idf(sentences, vocab=None):
 
     Args:
         sentences (list of str): List of sentences.
-        vocab (list of str): Vocabulary to use.If None, inferred from sentences.
+        vocab (list of str): Vocabulary to use.
+        If None, inferred from sentences.
 
     Returns:
         embeddings (np.ndarray): shape (s, f) TF-IDF matrix.
