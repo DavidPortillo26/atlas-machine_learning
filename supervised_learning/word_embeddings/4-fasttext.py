@@ -2,8 +2,7 @@
 """
     NLP - Word Embeddings
 """
-import numpy as np
-from gensim.models import fasttext
+import gensim
 
 
 def fasttext_model(sentences, size=100, min_count=5, negative=5, window=5,
