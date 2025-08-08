@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#!/usr/bin/env python3
 def gensim_to_keras(model):
     """
     Converts a trained gensim Word2Vec model into a Keras Embedding layer.
