@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import gensim
+import random
+import numpy as np
 
 def word2vec_model(
     sentences,
@@ -15,10 +17,13 @@ def word2vec_model(
     """
     Creates, builds, and trains a gensim Word2Vec model.
     """
+    # Ensure reproducibility
+    random.seed(seed)
+    np.random.seed(seed)
+
     sg = 0 if cbow else 1
 
     model = gensim.models.Word2Vec(
-        sentences=sentences,
         vector_size=vector_size,
         window=window,
         min_count=min_count,
@@ -28,6 +33,10 @@ def word2vec_model(
         workers=workers
     )
 
+    # Build vocab first (deterministic)
+    model.build_vocab(sentences)
+
+    # Train model
     model.train(sentences, total_examples=len(sentences), epochs=epochs)
 
     return model
