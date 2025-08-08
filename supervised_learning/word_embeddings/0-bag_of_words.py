@@ -38,7 +38,8 @@ def bag_of_words(sentences, vocab=None):
     # Tokenize each sentence in the input list
     tokenized_sentences = [tokenize(sentence) for sentence in sentences]
 
-    # If vocab is not provided, build it from all unique words found in the tokenized sentences
+    # If vocab is not provided, build it
+    # from all unique words found in the tokenized sentences
     if vocab is None:
         all_words = set(
             word
@@ -47,7 +48,8 @@ def bag_of_words(sentences, vocab=None):
         )
         # Remove the possessive 's' which is common but usually uninformative
         all_words.discard('s')
-        # Sort the vocabulary words to maintain consistent order and convert to numpy array
+        # Sort the vocabulary words to maintain
+        # consistent order and convert to numpy array
         features = np.array(sorted(all_words), dtype=object)
     else:
         # Use provided vocab; convert all words to lowercase for consistency
