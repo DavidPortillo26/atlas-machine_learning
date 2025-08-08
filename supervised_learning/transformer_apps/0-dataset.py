@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import tensorflow_datasets as tfds
+from transformers import BerTokenizerfast
+
+data_train, data_valid = trfds.load(
+    'ted_hrlr_translate/pt_to_en',
+    split=['train', 'validation'],
+    as_supervised=True
+)
+
+for pt, en in data_train.take(1):
+    print(pt.numpy().decode('utf-8'))
+    print(en.numpy().decode('utf-8'))
+
+
+tokeniner_pt = BertTokenizer.from_pretrained('neuralmind/bert-base-portuguese-cased')
+tokeniner_en = BertTokenizer.from_pretrained('bert-base-uncased')
+
+#Test them
+Print(tokeniner_pt.tokenize("Olá, tudo bem?"))
+Print(tokeniner_en.tokenize("Hello, how are you?"))
+
