@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import tensorflow as tf
+
 def gensim_to_keras(model):
     """
     Converts a trained gensim Word2Vec model into a Keras Embedding layer.
