@@ -24,6 +24,4 @@ def tokenizer_dataset(self, data):
             tokenizer_pt: Portuguese tokenizer
             tokenizer_en: English tokenizer
         """
-    tokenizer_pt = BertTokenizer.from_pretrained('neuralmind/bert-base-portuguese-cased')
-    tokeenizer_en = BertTokenizer.from_pretrained('bert-base-uncased')
     return tokenizer_pt, tokenizer_en
