@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import tensorflow_datasets as tfds
-from transformers import BerTokenizerfast
+import transformers
 
 data_train, data_valid = trfds.load(
     'ted_hrlr_translate/pt_to_en',
