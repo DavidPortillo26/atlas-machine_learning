@@ -1,6 +1,23 @@
 #!/usr/bin/env python3
-
 import numpy as np
+import tensorflow_datasets as tfds
+import transformers
+
+class Dataset:
+    def __init__(self):
+        # Load data
+        self.data_train, self.data_valid = tfds.load(
+            'ted_hrlr_translate/pt_to_en',
+            split=['train', 'validation'],
+            as_supervised=True
+        )
+        # Load tokenizers
+        self.tokenizer_pt = transformers.BertTokenizerFast.from_pretrained(
+            "neuralmind/bert-base-portuguese-cased"
+        )
+        self.tokenizer_en = transformers.BertTokenizerFast.from_pretrained(
+            "bert-base-uncased"
+        )
 
 def encode(self, pt, en):
     """
