@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import tensorflow_datasets as tfds
-import transformers import BertTokenizer
+import transformers
 
 class Dataset:
     def __init__(self):
