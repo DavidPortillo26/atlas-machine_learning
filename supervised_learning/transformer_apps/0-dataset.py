@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import tensorflow_datasets as tfds
-import transformers
+import transformers import BertTokenizer
 
 class Dataset:
     def __init__(self):
@@ -13,15 +13,18 @@ class Dataset:
             as_supervised=True
         )
         self.tokenizer_pt, self.tokenizer_en = self.tokenizer_dataset(self.data_train)
-def tokenizer_dataset(self, data):
-    """
-        Creates sub-word tokenizers for the dataset using pretrained BERT models.
+    
+    def tokenizer_dataset(self, data):
+        """
+        Loads pretrained BERT tokenizers for Portuguese and English.
 
         Args:
-            data: tf.data.Dataset of (pt, en) sentence pairs
+            data: tf.data.Dataset of (pt, en) sentence pairs (not used for pretrained tokenizers)
 
         Returns:
             tokenizer_pt: Portuguese tokenizer
             tokenizer_en: English tokenizer
         """
-    return tokenizer_pt, tokenizer_en
+        tokenizer_pt = BertTokenizerFast.from_pretrained("neuralmind/bert-base-portuguese-cased")
+        tokenizer_en = BertTokenizerFast.from_pretrained("bert-base-uncased")
+        return tokenizer_pt, tokenizer_en
