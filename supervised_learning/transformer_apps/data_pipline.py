@@ -1,35 +1,33 @@
-# data_pipeline.py
 import tensorflow as tf
-from transformers import AutoTokenizer
 
-""" This file handles loading, parsing, and batching TFRecords"""
+def create_dataset(file_paths, batch_size=32, buffer_size=10000):
+    """
+    Creates a TensorFlow dataset pipeline with proper cache, shuffle, batch, and repeat order.
+    """
 
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+    # Load the dataset from TFRecord files (or any other source)
+    dataset = tf.data.TFRecordDataset(file_paths)
 
-def parse_tfrecord(example_proto):
-    feature_description = {
-        "input_ids": tf.io.FixedLenFeature([128], tf.int64),
-        "attention_mask": tf.io.FixedLenFeature([128], tf.int64),
-        "labels": tf.io.FixedLenFeature([128], tf.int64),
-    }
-    example = tf.io.parse_single_example(example_proto, feature_description)
-    return example["input_ids"], example["labels"]
+    # Optional: parse TFRecords here
+    def parse_fn(example):
+        # Replace this with your actual parsing logic
+        return example
 
-def load_dataset(file_pattern, batch_size=32, shuffle_buffer_size=1000, cache=True):
-    files = tf.data.Dataset.list_files(file_pattern)
-    dataset = files.interleave(
-        tf.data.TFRecordDataset,
-        cycle_length=tf.data.AUTOTUNE,
-        num_parallel_calls=tf.data.AUTOTUNE,
-    )
-    
-    dataset = dataset.map(parse_tfrecord, num_parallel_calls=tf.data.AUTOTUNE)
-    
-    if cache:
-        dataset = dataset.cache()
-    
-    dataset = dataset.shuffle(shuffle_buffer_size)
+    dataset = dataset.map(parse_fn, num_parallel_calls=tf.data.AUTOTUNE)
+
+    # Shuffle the dataset
+    dataset = dataset.shuffle(buffer_size=buffer_size)
+
+    # Cache the dataset in memory for faster training
+    dataset = dataset.cache()
+
+    # Batch the dataset
     dataset = dataset.batch(batch_size)
+
+    # Repeat the dataset indefinitely (for training loops)
+    dataset = dataset.repeat()
+
+    # Prefetch to improve pipeline performance
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
-    
+
     return dataset
