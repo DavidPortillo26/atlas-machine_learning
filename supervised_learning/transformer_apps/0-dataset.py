@@ -25,6 +25,6 @@ class Dataset:
             tokenizer_pt: Portuguese tokenizer
             tokenizer_en: English tokenizer
         """
-        tokenizer_pt = BertTokenizerFast.from_pretrained("neuralmind/bert-base-portuguese-cased")
-        tokenizer_en = BertTokenizerFast.from_pretrained("bert-base-uncased")
+        tokenizer_pt = transformers.BertTokenizerFast.from_pretrained("neuralmind/bert-base-portuguese-cased")
+        tokenizer_en = transformers.BertTokenizerFast.from_pretrained("bert-base-uncased")
         return tokenizer_pt, tokenizer_en
