@@ -1,38 +1,32 @@
 #!/usr/bin/env python3
+"""Class Dataset"""
 
+import tensorflow.compat.v2 as tf
 import tensorflow_datasets as tfds
-import transformers
 
 
-class Dataset:
-    """Loads and prepares the TED Talks Portuguese-English translation dataset
-    with pretrained BERT tokenizers for both languages.
-    """
+class Dataset():
+    """ class dataset """
 
     def __init__(self):
-        # Load the train and validation splits
-        self.data_train, self.data_valid = tfds.load(
-            'ted_hrlr_translate/pt_to_en',
-            split=['train', 'validation'],
-            as_supervised=True
-        )
-        # Load the tokenizers
-        self.tokenizer_pt, self.tokenizer_en = self.tokenizer_dataset(self.data_train)
+        """ initialize dataset """
 
-    def tokenizer_dataset(self, data):
-        """Creates pretrained BERT tokenizers for Portuguese and English.
+        examples, metadata = tfds.load('ted_hrlr_translate/pt_to_en',
+                                       with_info=True,
+                                       as_supervised=True)
 
-        Args:
-            data: tf.data.Dataset of (pt, en) sentence pairs (not used for pretrained tokenizers)
+        self.data_train, self.data_valid = examples['train'], \
+            examples['validation']
+        self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
+            self.data_train)
 
-        Returns:
-            tokenizer_pt: Portuguese tokenizer
-            tokenizer_en: English tokenizer
-        """
-        tokenizer_pt = transformers.BertTokenizerFast.from_pretrained(
-            "neuralmind/bert-base-portuguese-cased"
-        )
-        tokenizer_en = transformers.BertTokenizerFast.from_pretrained(
-            "bert-base-uncased"
-        )
+    def tokenize_dataset(self, data):
+        """tokenize data """
+
+        tokenizer_en = tfds.features.text.SubwordTextEncoder.build_from_corpus(
+            (en.numpy() for pt, en in data), target_vocab_size=2 ** 15)
+
+        tokenizer_pt = tfds.features.text.SubwordTextEncoder.build_from_corpus(
+            (pt.numpy() for pt, en in data), target_vocab_size=2 ** 15)
+
         return tokenizer_pt, tokenizer_en
