@@ -15,7 +15,7 @@ class Dataset:
         self.data_train, self.data_valid = tfds.load(
             "ted_hrlr_translate/pt_to_en",
             split=["train", "validation"],
-            as_supervised=True
+            as_supervised=True,
             shuffle_files=False
         )
 
