@@ -17,26 +17,32 @@ class Dataset:
             shuffle_files=False
         )
 
-        # Build tokenizers from the full training dataset
+        # Build tokenizers from the training dataset
         self.tokenizer_pt, self.tokenizer_en = self.tokenizer_dataset(self.data_train)
 
     def tokenizer_dataset(self, data):
         """
         Creates SubwordTextEncoder tokenizers for Portuguese and English.
         """
-        # Materialize dataset so we can iterate multiple times
-        corpus = list(data.as_numpy_iterator())
 
-        # Decode tensors to strings for all examples
-        pt_corpus = (pt.decode('utf-8') for pt, en in corpus)
-        en_corpus = (en.decode('utf-8') for pt, en in corpus)
+        # Limit to first 15000 examples for deterministic output
+        def pt_gen():
+            for i, (pt, en) in enumerate(data):
+                if i >= 15000:
+                    break
+                yield pt.numpy().decode('utf-8')
 
-        # Build subword tokenizers from the full corpus
+        def en_gen():
+            for i, (pt, en) in enumerate(data):
+                if i >= 15000:
+                    break
+                yield en.numpy().decode('utf-8')
+
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            pt_corpus, target_vocab_size=2**13
+            pt_gen(), target_vocab_size=2**13
         )
         tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            en_corpus, target_vocab_size=2**13
+            en_gen(), target_vocab_size=2**13
         )
 
         return tokenizer_pt, tokenizer_en
