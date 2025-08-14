@@ -16,6 +16,7 @@ class Dataset:
             "ted_hrlr_translate/pt_to_en",
             split=["train", "validation"],
             as_supervised=True
+            shuffle_files=False
         )
 
         # Load the tokenizers
