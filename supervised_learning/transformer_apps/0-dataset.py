@@ -17,7 +17,7 @@ class Dataset:
 
     def tokenizer_dataset(self, data):
         # Limit to first 10000 examples
-        corpus = list(data.take(10000).as_numpy_iterator())
+        corpus = list(data.take(1000).as_numpy_iterator())
 
         pt_corpus = [pt.decode("utf-8") for pt, _ in corpus]
         en_corpus = [en.decode("utf-8") for _, en in corpus]
