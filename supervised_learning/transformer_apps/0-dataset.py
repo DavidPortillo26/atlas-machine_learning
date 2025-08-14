@@ -1,42 +1,32 @@
-
 #!/usr/bin/env python3
-"""
-    Transformer Applications
-"""
-import transformers
 import tensorflow_datasets as tfds
-
+import transformers
 
 class Dataset:
-    """Dataset class loads and prepares a dataset for MT
-    """
-    def __init__(self) -> None:
-        """Initializer
-        """
+    def __init__(self):
+        # Load the train and validation splits deterministically
         self.data_train, self.data_valid = tfds.load(
             "ted_hrlr_translate/pt_to_en",
-            split=['train', 'validation'],
-            as_supervised=True
-        )
-        self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
-            self.data_train
+            split=["train", "validation"],
+            as_supervised=True,
+            shuffle_files=False
         )
 
-    def tokenize_dataset(self, data):
-        """Creates subwords tokenizers for out dataset
+        # Build tokenizers
+        self.tokenizer_pt, self.tokenizer_en = self.tokenizer_dataset(self.data_train)
 
-        Arguments:
-            data {tf.data.Dataset} -- Dataset of samples
+    def tokenizer_dataset(self, data):
+        # Limit to first 10000 examples
+        corpus = list(data.take(10000).as_numpy_iterator())
 
-        Returns:
-            tuple -- Contains the tokenizer_pt and tokenizer_en
-        """
-        tok_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (pt.numpy() for pt, _ in data),
-            target_vocab_size=2**15
+        pt_corpus = [pt.decode("utf-8") for pt, _ in corpus]
+        en_corpus = [en.decode("utf-8") for _, en in corpus]
+
+        tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
+            pt_corpus, target_vocab_size=2**13
         )
-        tok_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (en.numpy() for _, en in data),
-            target_vocab_size=2**15
+        tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
+            en_corpus, target_vocab_size=2**13
         )
-        return tok_pt, tok_en
+
+        return tokenizer_pt, tokenizer_en
