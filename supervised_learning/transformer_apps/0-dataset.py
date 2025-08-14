@@ -23,10 +23,10 @@ class Dataset:
         en_corpus = [en.decode("utf-8") for _, en in corpus]
 
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            pt_corpus, target_vocab_size=2**13
+            pt_corpus, target_vocab_size=2**15
         )
         tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            en_corpus, target_vocab_size=2**13
+            en_corpus, target_vocab_size=2**15
         )
 
         return tokenizer_pt, tokenizer_en
