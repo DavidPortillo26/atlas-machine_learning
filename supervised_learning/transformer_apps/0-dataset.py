@@ -22,14 +22,11 @@ class Dataset:
 
     def tokenizer_dataset(self, data):
         """
-        Creates SubwordTextEncoder tokenizers for Portuguese and English.
+        Creates SubwordTextEncoder tokenizers for Portuguese and English
+        without loading the entire dataset into memory.
         """
-        # Materialize dataset so we can iterate multiple times
-        corpus = list(data.as_numpy_iterator())
-
-        # Decode bytes to strings
-        pt_corpus = (pt.decode('utf-8') for pt, en in corpus)
-        en_corpus = (en.decode('utf-8') for pt, en in corpus)
+        pt_corpus = (pt.numpy().decode("utf-8") for pt, en in data)
+        en_corpus = (en.numpy().decode("utf-8") for pt, en in data)
 
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
             pt_corpus, target_vocab_size=2**13
