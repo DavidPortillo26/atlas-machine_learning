@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
-import transformers
 import tensorflow_datasets as tfds
 
 
 class Dataset:
     """
     Loads and prepares the TED Talks Portuguese-English translation dataset
-    with pretrained BERT tokenizers for both languages.
+    with SubwordTextEncoder tokenizers built from the dataset itself.
     """
 
     def __init__(self):
-        # Load the train and validation splits
+        # Load the train and validation splits deterministically
         self.data_train, self.data_valid = tfds.load(
             "ted_hrlr_translate/pt_to_en",
             split=["train", "validation"],
@@ -19,16 +18,15 @@ class Dataset:
             shuffle_files=False
         )
 
-        # Load the tokenizers
+        # Build tokenizers from the training dataset
         self.tokenizer_pt, self.tokenizer_en = self.tokenizer_dataset(self.data_train)
 
     def tokenizer_dataset(self, data):
         """
-        Creates pretrained BERT tokenizers for Portuguese and English.
+        Creates SubwordTextEncoder tokenizers for Portuguese and English.
 
         Args:
             data (tf.data.Dataset): Dataset of (pt, en) sentence pairs
-                                    (not used for pretrained tokenizers).
 
         Returns:
             tuple: (tokenizer_pt, tokenizer_en)
@@ -44,4 +42,5 @@ class Dataset:
         tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
             en_corpus, target_vocab_size=2**13
         )
+
         return tokenizer_pt, tokenizer_en
