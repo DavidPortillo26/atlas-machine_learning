@@ -33,10 +33,15 @@ class Dataset:
         Returns:
             tuple: (tokenizer_pt, tokenizer_en)
         """
-        tokenizer_pt = transformers.BertTokenizerFast.from_pretrained(
-            "neuralmind/bert-base-portuguese-cased"
+        # Extract text from dataset
+        pt_corpus = (pt.numpy() for pt, en in data)
+        en_corpus = (en.numpy() for pt, en in data)
+
+        # Build subword tokenizers
+        tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
+            pt_corpus, target_vocab_size=2**13
         )
-        tokenizer_en = transformers.BertTokenizerFast.from_pretrained(
-            "bert-base-uncased"
+        tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
+            en_corpus, target_vocab_size=2**13
         )
         return tokenizer_pt, tokenizer_en
