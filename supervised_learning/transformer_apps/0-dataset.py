@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import tensorflow_datasets as tfds
+import transformers
 
 
 class Dataset:
