@@ -3,7 +3,6 @@
 import tensorflow_datasets as tfds
 import transformers
 
-
 class Dataset:
     """
     Loads and prepares the TED Talks Portuguese-English translation dataset
@@ -25,18 +24,13 @@ class Dataset:
     def tokenizer_dataset(self, data):
         """
         Creates SubwordTextEncoder tokenizers for Portuguese and English.
-
-        Args:
-            data (tf.data.Dataset): Dataset of (pt, en) sentence pairs
-
-        Returns:
-            tuple: (tokenizer_pt, tokenizer_en)
         """
-        # Extract text from dataset
-        pt_corpus = (pt.numpy() for pt, en in data)
-        en_corpus = (en.numpy() for pt, en in data)
+        # Materialize dataset so we can iterate multiple times
+        corpus = list(data.as_numpy_iterator())
 
-        # Build subword tokenizers
+        pt_corpus = (pt for pt, en in corpus)
+        en_corpus = (en for pt, en in corpus)
+
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
             pt_corpus, target_vocab_size=2**13
         )
