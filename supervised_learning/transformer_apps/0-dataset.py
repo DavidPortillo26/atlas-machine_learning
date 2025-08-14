@@ -28,8 +28,8 @@ class Dataset:
         corpus = list(data.as_numpy_iterator())
 
         # Decode tensors to strings
-        pt_corpus = (pt.decode('utf-8') for pt, en in corpus)
-        en_corpus = (en.decode('utf-8') for pt, en in corpus)
+        pt_corpus = (pt.decode('utf-8') for pt, en in corpus[:10000])
+        en_corpus = (en.decode('utf-8') for pt, en in corpus[:10000])
 
         # Build subword tokenizers
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
