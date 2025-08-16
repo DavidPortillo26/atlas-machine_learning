@@ -42,7 +42,7 @@ class Dataset:
             en_tokens = [8192, 0, 8193]
 
         # Use tf.constant instead of np.array
-        return tf.constant(pt_tokens, dtype=tf.int32), tf.constant(en_tokens, dtype=tf.int32)
+        return tf.constant(pt_tokens, dtype=tf.int64), tf.constant(en_tokens, dtype=tf.int64)
 
     def tf_encode(self, pt, en):
         pt_tokens, en_tokens = tf.py_function(
