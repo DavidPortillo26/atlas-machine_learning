@@ -14,16 +14,16 @@ class Dataset:
         self.data_train = tf.data.Dataset.from_generator(
             lambda: ((self.tf_encode(pt, en)) for pt, en in raw_train),
             output_signature=(
-                tf.TensorSpec(shape=(None,), dtype=tf.int32),
-                tf.TensorSpec(shape=(None,), dtype=tf.int32),
+                tf.TensorSpec(shape=(None,), dtype=tf.int64),
+                tf.TensorSpec(shape=(None,), dtype=tf.int64),
             )
         )
 
         self.data_valid = tf.data.Dataset.from_generator(
             lambda: ((self.tf_encode(pt, en)) for pt, en in raw_valid),
             output_signature=(
-                tf.TensorSpec(shape=(None,), dtype=tf.int32),
-                tf.TensorSpec(shape=(None,), dtype=tf.int32),
+                tf.TensorSpec(shape=(None,), dtype=tf.int64),
+                tf.TensorSpec(shape=(None,), dtype=tf.int64),
             )
         )
 
@@ -48,7 +48,7 @@ class Dataset:
         pt_tokens, en_tokens = tf.py_function(
             func=self.encode,
             inp=[pt, en],
-            Tout=[tf.int32, tf.int32]
+            Tout=[tf.int64, tf.int64]  # <-- change this to int64
         )
         pt_tokens.set_shape([None])
         en_tokens.set_shape([None])
