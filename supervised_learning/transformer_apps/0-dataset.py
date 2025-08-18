@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Module for loading and tokenizing the TED HRLR Portuguese to English dataset.
+Module for loading and tokenizing the TED HRLR Portuguese-to-English dataset.
 """
 import tensorflow_datasets as tfds
 import transformers
@@ -35,7 +35,7 @@ class Dataset:
             "ted_hrlr_translate/pt_to_en",
             split=["train", "validation"],
             as_supervised=True,
-            shuffle_files=False
+            shuffle_files=False,
         )
 
         # Build tokenizers
@@ -68,11 +68,11 @@ class Dataset:
 
         tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
             pt_corpus,
-            target_vocab_size=2**13
+            target_vocab_size=2 ** 13,
         )
         tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
             en_corpus,
-            target_vocab_size=2**13
+            target_vocab_size=2 ** 13,
         )
 
         return tokenizer_pt, tokenizer_en
