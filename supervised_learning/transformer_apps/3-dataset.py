@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import tensorflow as tf
 import tensorflow_datasets as tfds
+import transformers
 
 class Dataset:
     def __init__(self, batch_size, max_len):
