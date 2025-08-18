@@ -22,13 +22,15 @@ def create_look_ahead_mask(size):
     return mask  # (seq_len_out, seq_len_out)
 
 
-def create_masks(inputs, target):
+def create_masks(inputs, target, fixed_len=36):
     """
     Creates encoder, combined, and decoder masks for Transformer training.
-    inputs: tf.Tensor of shape (batch_size, seq_len_in)
-    target: tf.Tensor of shape (batch_size, seq_len_out)
-    Returns: encoder_mask, combined_mask, decoder_mask
+    Ensures masks are aligned to the expected sequence length.
     """
+    # Force inputs and target to fixed_len
+    inputs = inputs[:, :fixed_len]
+    target = target[:, :fixed_len]
+
     # Encoder padding mask
     encoder_mask = create_padding_mask(inputs)
 
@@ -40,10 +42,12 @@ def create_masks(inputs, target):
     look_ahead_mask = create_look_ahead_mask(seq_len)
 
     # Combine look-ahead and target padding mask
-    combined_mask = tf.maximum(decoder_padding_mask[:, :, :, :seq_len],
-                               look_ahead_mask[tf.newaxis, tf.newaxis, :, :])
+    combined_mask = tf.maximum(
+        decoder_padding_mask[:, :, :, :seq_len],
+        look_ahead_mask[tf.newaxis, tf.newaxis, :, :]
+    )
 
     # Decoder's 2nd attention block uses encoder padding mask
-    decoder_mask = create_padding_mask(inputs)
+    decoder_mask = encoder_mask
 
     return encoder_mask, combined_mask, decoder_mask
