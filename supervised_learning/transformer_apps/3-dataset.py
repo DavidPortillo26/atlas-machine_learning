@@ -18,20 +18,20 @@ class Dataset:
 
         train_examples, val_examples = examples['train'], examples['validation']
 
-        # Tokenizer
+        # ✅ Fix: decode bytes into strings instead of calling .numpy()
         self.tokenizer_pt = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (pt.numpy() for pt, en in tfds.as_numpy(train_examples)),
+            (pt.decode("utf-8") for pt, en in tfds.as_numpy(train_examples)),
             target_vocab_size=self.tokenizer_pt_vocab_size
         )
         self.tokenizer_en = tfds.deprecated.text.SubwordTextEncoder.build_from_corpus(
-            (en.numpy() for pt, en in tfds.as_numpy(train_examples)),
+            (en.decode("utf-8") for pt, en in tfds.as_numpy(train_examples)),
             target_vocab_size=self.tokenizer_en_vocab_size
         )
 
         # Wrap encode in TF function
         def encode(pt, en):
-            pt_tokens = [self.tokenizer_pt.vocab_size] + self.tokenizer_pt.encode(pt.numpy()) + [self.tokenizer_pt.vocab_size + 1]
-            en_tokens = [self.tokenizer_en.vocab_size] + self.tokenizer_en.encode(en.numpy()) + [self.tokenizer_en.vocab_size + 1]
+            pt_tokens = [self.tokenizer_pt.vocab_size] + self.tokenizer_pt.encode(pt.numpy().decode("utf-8")) + [self.tokenizer_pt.vocab_size + 1]
+            en_tokens = [self.tokenizer_en.vocab_size] + self.tokenizer_en.encode(en.numpy().decode("utf-8")) + [self.tokenizer_en.vocab_size + 1]
             return tf.constant(pt_tokens, dtype=tf.int64), tf.constant(en_tokens, dtype=tf.int64)
 
         def tf_encode(pt, en):
