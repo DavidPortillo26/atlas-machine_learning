@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import tensorflow as tf
 """
 Module for creating padding and look-ahead masks for Transformer models.
 """
-
+import tensorflow as tf
 def create_padding_mask(seq):
     """
     Create a padding mask for a given sequence.
