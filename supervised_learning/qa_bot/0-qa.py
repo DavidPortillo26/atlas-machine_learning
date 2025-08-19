@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Question Answering function using BERT with chunking for long references
+Question Answering function using BERT with token-based chunking
 """
 
 import tensorflow as tf
@@ -15,7 +15,7 @@ tokenizer = BertTokenizer.from_pretrained(
 )
 
 MAX_LEN = 512  # BERT max input length
-CHUNK_SIZE = 400  # chunk size for reference text
+CHUNK_SIZE = 400  # token-based chunk size for reference text
 STEP = 300        # overlap to avoid missing answers
 
 
@@ -31,17 +31,21 @@ def question_answer(question, reference):
         str or None: The answer snippet, or None if not found
     """
 
-    reference_len = len(reference)
+    # Tokenize the entire reference first
+    ref_tokens = tokenizer.tokenize(reference)
+    total_tokens = len(ref_tokens)
     best_answer = None
+    best_score = -np.inf
 
-    # Process the reference in overlapping chunks
-    for start in range(0, reference_len, STEP):
-        chunk = reference[start:start + CHUNK_SIZE]
+    # Process reference in overlapping token chunks
+    for start in range(0, total_tokens, STEP):
+        chunk_tokens = ref_tokens[start:start + CHUNK_SIZE]
+        chunk_text = tokenizer.convert_tokens_to_string(chunk_tokens)
 
-        # Tokenize question and chunk
+        # Tokenize question + chunk
         inputs = tokenizer.encode_plus(
             question,
-            chunk,
+            chunk_text,
             return_tensors="tf",
             max_length=MAX_LEN,
             truncation=True,
@@ -58,25 +62,20 @@ def question_answer(question, reference):
         start_scores = outputs[0][0].numpy()
         end_scores = outputs[1][0].numpy()
 
-        # Get the most probable start and end token positions
+        # Ignore [CLS] predictions
         start_index = np.argmax(start_scores)
         end_index = np.argmax(end_scores)
-
-        # Ignore [CLS] predictions
         if start_index == 0 and end_index == 0:
             continue
         if end_index < start_index:
             continue
 
-        # Convert token ids to tokens
-        tokens = input_ids[0][start_index:end_index + 1]
-        answer_tokens = tokenizer.convert_ids_to_tokens(tokens.numpy())
-
-        # Combine tokens into a string, cleaning up '##' subwords
-        answer = tokenizer.convert_tokens_to_string(answer_tokens).strip()
-
-        if answer:
-            best_answer = answer
-            break  # return the first valid answer found
+        # Calculate a confidence score (sum of start + end logits)
+        score = start_scores[start_index] + end_scores[end_index]
+        if score > best_score:
+            best_score = score
+            tokens = input_ids[0][start_index:end_index + 1]
+            answer_tokens = tokenizer.convert_ids_to_tokens(tokens.numpy())
+            best_answer = tokenizer.convert_tokens_to_string(answer_tokens).strip()
 
     return best_answer
