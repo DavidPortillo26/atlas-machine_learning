@@ -42,8 +42,9 @@ def question_answer(question, reference):
 
     # Run the model
     outputs = bert_model([input_ids, input_mask, segment_ids])
-    start_scores = outputs['start_logits'][0].numpy()
-    end_scores   = outputs['end_logits'][0].numpy()
+    start_scores = outputs[0][0].numpy()
+    end_scores   = outputs[1][0].numpy()
+
 
     # Get the most probable start and end token positions
     start_index = np.argmax(start_scores)
