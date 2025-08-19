@@ -1,0 +1,45 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+qa_env/
+.env/
+.venv/
+env/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# TensorFlow / PyTorch model files (large binaries should go in Git LFS or be ignored)
+*.h5
+*.ckpt
+*.pb
+*.pth
+*.pt
+
+# W&B (Weights & Biases) cache
+wandb/
+
+# dotenv files (secrets)
+*.env
