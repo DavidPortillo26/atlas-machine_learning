@@ -8,9 +8,13 @@ import tensorflow_hub as hub
 from transformers import BertTokenizer
 import numpy as np
 
-# Load model and tokenizer once to avoid reloading every function call
+# Load model and tokenizer once
 bert_model = hub.load("https://tfhub.dev/see--/bert-uncased-tf2-qa/1")
-tokenizer = BertTokenizer.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad")
+tokenizer = BertTokenizer.from_pretrained(
+    "bert-large-uncased-whole-word-masking-finetuned-squad"
+)
+
+MAX_LEN = 512  # BERT max input length
 
 
 def question_answer(question, reference):
@@ -25,15 +29,15 @@ def question_answer(question, reference):
         str or None: The answer snippet, or None if not found
     """
 
-    # Tokenize question and reference together
+    # Tokenize question and reference
     inputs = tokenizer.encode_plus(
         question,
         reference,
-        return_tensors='tf',
-        max_length=512,
+        return_tensors="tf",
+        max_length=MAX_LEN,
         truncation=True,
-        padding='max_length',
-        return_token_type_ids=True
+        padding="max_length",
+        return_token_type_ids=True,
     )
 
     input_ids = inputs["input_ids"]
@@ -43,13 +47,17 @@ def question_answer(question, reference):
     # Run the model
     outputs = bert_model([input_ids, input_mask, segment_ids])
     start_scores = outputs[0][0].numpy()
-    end_scores   = outputs[1][0].numpy()
-
+    end_scores = outputs[1][0].numpy()
 
     # Get the most probable start and end token positions
     start_index = np.argmax(start_scores)
     end_index = np.argmax(end_scores)
 
+    # Ignore predictions that are only [CLS]
+    if start_index == 0 and end_index == 0:
+        return None
+
+    # Ensure end_index >= start_index
     if end_index < start_index:
         return None
 
@@ -60,6 +68,5 @@ def question_answer(question, reference):
     # Combine tokens into a string, cleaning up '##' subwords
     answer = tokenizer.convert_tokens_to_string(answer_tokens)
 
-    if answer.strip() == "":
-        return None
-    return answer
+    answer = answer.strip()
+    return answer if answer else None
