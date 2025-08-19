@@ -26,14 +26,22 @@ def question_answer(question, reference):
     """
 
     # Tokenize question and reference together
-    inputs = tokenizer.encode_plus(question, reference, return_tensors='tf')
+    inputs = tokenizer.encode_plus(
+        question,
+        reference,
+        return_tensors='tf',
+        max_length=512,
+        truncation=True,
+        padding='max_length',
+        return_token_type_ids=True  # make sure segment_ids are included
+    )
 
     input_ids = inputs["input_ids"]
     input_mask = inputs["attention_mask"]
+    segment_ids = inputs["token_type_ids"]  # THIS is needed
 
     # Run the model
-    outputs = bert_model([input_ids, input_mask])
-    start_scores, end_scores = outputs
+    start_scores, end_scores = bert_model([input_ids, input_mask, segment_ids])
 
     # Convert tensors to numpy
     start_scores = start_scores.numpy()[0]
@@ -43,7 +51,6 @@ def question_answer(question, reference):
     start_index = np.argmax(start_scores)
     end_index = np.argmax(end_scores)
 
-    # Make sure the end index is after the start index
     if end_index < start_index:
         return None
 
