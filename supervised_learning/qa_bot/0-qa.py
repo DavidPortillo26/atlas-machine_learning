@@ -20,32 +20,50 @@ STEP = 350        # overlap to avoid missing answers
 
 
 def question_answer(question, reference):
-    inputs = tokenizer.encode_plus(
-        question,
-        reference,
-        return_tensors="tf",
-        max_length=512,
-        truncation=True,
-        padding="max_length",
-        return_token_type_ids=True,
-    )
-    input_ids = inputs["input_ids"]
-    input_mask = inputs["attention_mask"]
-    segment_ids = inputs["token_type_ids"]
+    # Tokenize reference into chunks
+    ref_tokens = tokenizer.tokenize(reference)
+    best_answer = None
+    best_score = -np.inf
 
-    outputs = bert_model([input_ids, input_mask, segment_ids])
-    start_scores = outputs[0][0].numpy()
-    end_scores = outputs[1][0].numpy()
+    for i in range(0, len(ref_tokens), STEP):
+        chunk_tokens = ref_tokens[i:i + CHUNK_SIZE]
+        chunk_text = tokenizer.convert_tokens_to_string(chunk_tokens)
 
-    start_index = np.argmax(start_scores)
-    end_index = np.argmax(end_scores)
+        # Encode question + chunk
+        inputs = tokenizer.encode_plus(
+            question,
+            chunk_text,
+            return_tensors="tf",
+            max_length=MAX_LEN,
+            truncation=True,
+            padding="max_length",
+            return_token_type_ids=True,
+        )
 
-    # Remove [CLS] token check
-    if end_index < start_index:
-        return None
+        input_ids = inputs["input_ids"]
+        input_mask = inputs["attention_mask"]
+        segment_ids = inputs["token_type_ids"]
 
-    tokens = input_ids[0][start_index:end_index + 1]
-    answer_tokens = tokenizer.convert_ids_to_tokens(tokens.numpy())
-    answer = tokenizer.convert_tokens_to_string(answer_tokens).strip()
+        # Run model
+        outputs = bert_model([input_ids, input_mask, segment_ids])
+        start_scores = outputs[0][0].numpy()
+        end_scores = outputs[1][0].numpy()
 
-    return answer if answer else None
+        start_index = np.argmax(start_scores)
+        end_index = np.argmax(end_scores)
+
+        # Skip invalid spans
+        if end_index < start_index or start_index == 0:
+            continue
+
+        score = start_scores[start_index] + end_scores[end_index]
+
+        if score > best_score:
+            tokens = input_ids[0][start_index:end_index + 1]
+            answer_tokens = tokenizer.convert_ids_to_tokens(tokens.numpy())
+            answer = tokenizer.convert_tokens_to_string(answer_tokens).strip()
+
+            best_answer = answer
+            best_score = score
+
+    return best_answer if best_answer else None
