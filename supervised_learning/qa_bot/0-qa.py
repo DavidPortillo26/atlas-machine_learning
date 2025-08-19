@@ -33,19 +33,17 @@ def question_answer(question, reference):
         max_length=512,
         truncation=True,
         padding='max_length',
-        return_token_type_ids=True  # make sure segment_ids are included
+        return_token_type_ids=True
     )
 
     input_ids = inputs["input_ids"]
     input_mask = inputs["attention_mask"]
-    segment_ids = inputs["token_type_ids"]  # THIS is needed
+    segment_ids = inputs["token_type_ids"]
 
     # Run the model
-    start_scores, end_scores = bert_model([input_ids, input_mask, segment_ids])
-
-    # Convert tensors to numpy
-    start_scores = start_scores.numpy()[0]
-    end_scores = end_scores.numpy()[0]
+    outputs = bert_model([input_ids, input_mask, segment_ids])
+    start_scores = outputs['start_logits'][0].numpy()
+    end_scores   = outputs['end_logits'][0].numpy()
 
     # Get the most probable start and end token positions
     start_index = np.argmax(start_scores)
