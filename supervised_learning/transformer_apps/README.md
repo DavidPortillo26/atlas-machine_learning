@@ -3,8 +3,6 @@
 
 # Transformer Apps – Sequence-to-Sequence Learning with Transformers
 
-![Transformer Illustration](https://raw.githubusercontent.com/DavidPortillo26/atlas-machine_learning/main/supervised_learning/transformer_apps/transformer_diagram.png)
-
 ## About Me
 
 Hi! I’m **David Portillo**, a software engineer and machine learning enthusiast.
@@ -120,11 +118,5 @@ During development, the main goals were:
 
 ## References
 
-* TensorFlow Datasets – [TED HRLR](https://www.tensorflow.org/datasets/community_catalog/huggingface/ted_hrlr_translate)
+* TensorFlow Datasets – TED HRLR
 * Vaswani et al., “Attention is All You Need”, 2017
-
----
-
-If you want, I can **also add a visual diagram and step-by-step flow** of the dataset-to-mask pipeline to make this README even more engaging and clear for non-coders.
-
-Do you want me to do that next?
