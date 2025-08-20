@@ -1,69 +1,58 @@
+
 #!/usr/bin/env python3
 """
-Question Answering function using BERT with token-based chunking and debug logging
+Defines function that finds a snippet of text within a reference document
+to answer a question
 """
+
 
 import tensorflow as tf
 import tensorflow_hub as hub
 from transformers import BertTokenizer
-import numpy as np
-
-# Load model and tokenizer once
-bert_model = hub.load("https://tfhub.dev/see--/bert-uncased-tf2-qa/1")
-tokenizer = BertTokenizer.from_pretrained(
-    "bert-large-uncased-whole-word-masking-finetuned-squad"
-)
-
-MAX_LEN = 512   # BERT max input length
-CHUNK_SIZE = 400  # token-based chunk size
-STEP = 350        # overlap to avoid missing answers
 
 
 def question_answer(question, reference):
-    # Tokenize reference into chunks
-    ref_tokens = tokenizer.tokenize(reference)
-    best_answer = None
-    best_score = -np.inf
+    """
+    Finds a snippet of text within a reference document to answer a question
 
-    for i in range(0, len(ref_tokens), STEP):
-        chunk_tokens = ref_tokens[i:i + CHUNK_SIZE]
-        chunk_text = tokenizer.convert_tokens_to_string(chunk_tokens)
+    parameters:
+        question [string]:
+            contains the question to answer
+        reference [string]:
+            contains the reference document from which to find the answer
 
-        # Encode question + chunk
-        inputs = tokenizer.encode_plus(
-            question,
-            chunk_text,
-            return_tensors="tf",
-            max_length=MAX_LEN,
-            truncation=True,
-            padding="max_length",
-            return_token_type_ids=True,
-        )
+    returns:
+        [string]:
+            contains the answer
+        or None if no answer is found
+    """
+    tokenizer = BertTokenizer.from_pretrained(
+        'bert-large-uncased-whole-word-masking-finetuned-squad')
+    model = hub.load("https://tfhub.dev/see--/bert-uncased-tf2-qa/1")
 
-        input_ids = inputs["input_ids"]
-        input_mask = inputs["attention_mask"]
-        segment_ids = inputs["token_type_ids"]
+    quest_tokens = tokenizer.tokenize(question)
+    refer_tokens = tokenizer.tokenize(reference)
 
-        # Run model
-        outputs = bert_model([input_ids, input_mask, segment_ids])
-        start_scores = outputs[0][0].numpy()
-        end_scores = outputs[1][0].numpy()
+    tokens = ['[CLS]'] + quest_tokens + ['[SEP]'] + refer_tokens + ['[SEP]']
 
-        start_index = np.argmax(start_scores)
-        end_index = np.argmax(end_scores)
+    input_word_ids = tokenizer.convert_tokens_to_ids(tokens)
+    input_mask = [1] * len(input_word_ids)
+    input_type_ids = [0] * (
+        1 + len(quest_tokens) + 1) + [1] * (len(refer_tokens) + 1)
 
-        # Skip invalid spans
-        if end_index < start_index or start_index == 0:
-            continue
+    input_word_ids, input_mask, input_type_ids = map(
+        lambda t: tf.expand_dims(
+            tf.convert_to_tensor(t, dtype=tf.int32), 0),
+        (input_word_ids, input_mask, input_type_ids))
 
-        score = start_scores[start_index] + end_scores[end_index]
+    outputs = model([input_word_ids, input_mask, input_type_ids])
 
-        if score > best_score:
-            tokens = input_ids[0][start_index:end_index + 1]
-            answer_tokens = tokenizer.convert_ids_to_tokens(tokens.numpy())
-            answer = tokenizer.convert_tokens_to_string(answer_tokens).strip()
+    short_start = tf.argmax(outputs[0][0][1:]) + 1
+    short_end = tf.argmax(outputs[1][0][1:]) + 1
+    answer_tokens = tokens[short_start: short_end + 1]
+    answer = tokenizer.convert_tokens_to_string(answer_tokens)
 
-            best_answer = answer
-            best_score = score
+    if answer is None or answer is "" or question in answer:
+        return None
 
-    return best_answer if best_answer else None
+    return answer
