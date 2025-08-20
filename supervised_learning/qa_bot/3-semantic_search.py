@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 """
-Performs semantic search on corpus of documents
+Perform semantic search on a corpus of documents.
 
-Given a sentence, finds the document in corpus that is most similar to the sentence based on semantic meaning
+Given a sentence, this code finds the document in a corpus that is most
+similar in meaning to the sentence, using a pre-trained language model.
 """
 
 import os
@@ -12,38 +13,39 @@ from sentence_transformers import SentenceTransformer, util
 
 def semantic_search(corpus_path: str, sentence: str) -> str:
     """
-    Finds the most semantically similar document in the corpus to the given sentence.
+    Find the document most similar in meaning to the input sentence.
 
     Parameters:
-    corpus_path (str): Path to the directory containing text files as corpus.
-    sentence (str): The input sentence to compare against the corpus.
+        corpus_path (str): Directory containing text documents as the corpus.
+        sentence (str): The sentence to search for within the corpus.
 
     Returns:
-    str: The most similar document from the corpus.
+        str: The text of the document that is most similar to the sentence.
     """
-    # Load pre-trained SentenceTransformer model
+    # Load a pre-trained SentenceTransformer model that understands text meaning
     model = SentenceTransformer('all-MiniLM-L6-v2')
 
-    # Read all text files from the corpus directory
+    # Read all markdown files in the corpus directory
     corpus_texts = []
     file_paths = []
     for file in Path(corpus_path).glob("*.md"):
-        text = file.read_text(encoding='utf-8')
-        corpus_texts.append(text)
-        file_paths.append(file)
+        text = file.read_text(encoding='utf-8')  # Read the content of the file
+        corpus_texts.append(text)                # Save the content
+        file_paths.append(file)                  # Keep track of file paths
 
+    # If no documents are found, return an empty string
     if not corpus_texts:
         return ""
 
-    #encode corpus and query sentence
+    # Convert all documents and the query sentence into numerical embeddings
     corpus_embeddings = model.encode(corpus_texts, convert_to_tensor=True)
     query_embedding = model.encode(sentence, convert_to_tensor=True)
 
-    # Compute cosine similarities
+    # Compute similarity between the query sentence and each document
     cosine_scores = util.cos_sim(query_embedding, corpus_embeddings)
 
-    # Find the index of the highest scoring document
+    # Find the index of the document with the highest similarity score
     best_idx = int(cosine_scores.argmax())
 
-    # Return the most similar document
+    # Return the text of the document most similar to the query
     return corpus_texts[best_idx]
