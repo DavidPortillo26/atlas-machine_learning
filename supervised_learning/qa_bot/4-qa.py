@@ -62,7 +62,7 @@ def question_answer(corpus_path: str) -> None:
         reference = semantic_search(corpus_path, user_input)
 
         # Use the previous single document QA function
-        answer = Optional[str] = question_answer_single(user_input, reference)
+        answer : Optional[str] = question_answer_single(user_input, reference)
         if answer:
             print(f"A: {answer}")
         else:
