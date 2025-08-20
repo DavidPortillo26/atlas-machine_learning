@@ -1,3 +1,6 @@
+<img width="348" height="145" alt="image" src="https://github.com/user-attachments/assets/ed4a3a05-758d-4d1f-ada8-16d74b01a4c0" />
+
+
 QA Bot – Interactive Question Answering with Semantic Search
 
 
