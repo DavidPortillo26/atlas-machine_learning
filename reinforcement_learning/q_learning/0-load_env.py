@@ -4,6 +4,7 @@ import gymnasium as gym
 
 """ Module for loading the FrozenLake environment from gymnasium """
 
+
 def load_frozen_lake(desc=None, map_name=None, is_slippery=False):
     """
     Loads the FrozenLake environment from gymnasium.
