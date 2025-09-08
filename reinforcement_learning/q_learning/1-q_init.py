@@ -1,25 +1,18 @@
 #!/usr/bin/env python3
 import numpy as np
 
+""" Module for initializing Q-table """
 
-load_frozen_lake = __import__('0-load_env').load_frozen_lake
 
-# Default: random 8x8 → 64 states
-env = load_frozen_lake()
-print(env.shape)
+def q_init(env):
+    """
+    Initialize the Q-table with zeros.
 
-# Slippery: still 8x8 → 64 states
-env = load_frozen_lake(is_slippery=True)
-print(env.shape)
+    Args:
+        env (np.ndarray): Transition matrix representing the environment.
+                          Shape: (n_states, n_actions)
 
-# Custom 3x3 → 9 states
-desc = [['S', 'F', 'F'],
-        ['F', 'H', 'H'],
-        ['F', 'F', 'G']]
-env = load_frozen_lake(desc=desc)
-print(env.shape)
-print(env)   # print full zero matrix
-
-# Pre-made 4x4 → 16 states
-env = load_frozen_lake(map_name='4x4')
-print(env.shape)
+    Returns:
+        np.ndarray: Zero-initialized Q-table of the same shape as env.
+    """
+    return np.zeros_like(env, dtype=float)
