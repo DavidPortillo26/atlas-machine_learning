@@ -1,32 +1,23 @@
 #!/usr/bin/env python3
-import numpy as np
 
+load_frozen_lake = __import__('0-load_env').load_frozen_lake
 
-def load_frozen_lake(desc=None, map_name=None, is_slippery=False):
-    """
-    Minimal FrozenLake loader that returns zeroed transition arrays.
+# Default: random 8x8 → 64 states
+env = load_frozen_lake()
+print(env.shape)
 
-    Args:
-        desc (list[list[str]] | None): Custom description of the map.
-        map_name (str | None): Pre-made map name ("4x4", "8x8").
-        is_slippery (bool): Unused (only included for compatibility).
+# Slippery: still 8x8 → 64 states
+env = load_frozen_lake(is_slippery=True)
+print(env.shape)
 
-    Returns:
-        np.ndarray: Zeroed transition probability matrix (n_states, 4).
-    """
-    if desc is not None:
-        n_states = len(desc) * len(desc[0])
-    elif map_name is not None:
-        if map_name == "4x4":
-            n_states = 16
-        elif map_name == "8x8":
-            n_states = 64
-        else:
-            raise ValueError(f"Unsupported map_name: {map_name}")
-    else:
-        # Default: random 8x8
-        n_states = 64
+# Custom 3x3 → 9 states
+desc = [['S', 'F', 'F'],
+        ['F', 'H', 'H'],
+        ['F', 'F', 'G']]
+env = load_frozen_lake(desc=desc)
+print(env.shape)
+print(env)   # print full zero matrix
 
-    # 4 actions per state → shape (n_states, 4)
-    P = np.zeros((n_states, 4))
-    return P
+# Pre-made 4x4 → 16 states
+env = load_frozen_lake(map_name='4x4')
+print(env.shape)
