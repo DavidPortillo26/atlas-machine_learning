@@ -3,8 +3,8 @@
 Module: 4-play.py
 Purpose: Let a trained Q-learning agent play one episode on FrozenLake.
 """
-
 import numpy as np
+
 
 def play(env, Q, max_steps=100):
     """
@@ -24,7 +24,6 @@ def play(env, Q, max_steps=100):
     total_reward = 0
     rendered_outputs = []
 
-    # Get environment dimensions
     nrow, ncol = env.unwrapped.desc.shape
 
     for _ in range(max_steps):
@@ -32,21 +31,19 @@ def play(env, Q, max_steps=100):
         next_state, reward, terminated, truncated, _ = env.step(action)
         total_reward += reward
 
-        # Get agent position
-        row, col = divmod(state, ncol)
+        # Get agent position AFTER move
+        row, col = divmod(next_state, ncol)
 
-        # Render board and highlight agent's tile
+        # Render board and highlight agent's tile with backticks
         board_str = env.render()
         board_lines = board_str.strip().split('\n')
         highlighted_lines = []
 
         for r, line in enumerate(board_lines):
+            tiles = list(line)
             if r == row:
-                tiles = list(line)
                 tiles[col] = f"`{tiles[col]}`"
-                highlighted_lines.append(''.join(tiles))
-            else:
-                highlighted_lines.append(line)
+            highlighted_lines.append(''.join(tiles))
 
         rendered_outputs.append('\n'.join(highlighted_lines))
 
@@ -65,12 +62,10 @@ def play(env, Q, max_steps=100):
     highlighted_lines = []
 
     for r, line in enumerate(board_lines):
+        tiles = list(line)
         if r == row:
-            tiles = list(line)
             tiles[col] = f"`{tiles[col]}`"
-            highlighted_lines.append(''.join(tiles))
-        else:
-            highlighted_lines.append(line)
+        highlighted_lines.append(''.join(tiles))
 
     rendered_outputs.append('\n'.join(highlighted_lines))
 
