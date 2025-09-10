@@ -20,9 +20,6 @@ def play(env, Q, max_steps=100):
         board[row][col] = f"`{board[row][col]}`"
         return "\n".join("".join(r) for r in board)
 
-    # Show initial state before first move
-    rendered_outputs.append(render_board(state))
-
     for _ in range(max_steps):
         action = int(np.argmax(Q[state]))
         next_state, reward, done, truncated, _ = env.step(action)
