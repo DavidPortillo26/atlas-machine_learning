@@ -37,7 +37,7 @@ def play(env, Q, max_steps=100):
         for r in range(n):
             board[r] = [c.decode() if isinstance(c, bytes) else c for c in board[r]]
         # Highlight agent's position
-        board[row][col] = f"`{board[row][col]}`"
+        board[row][col] = f'"{board[row][col]}"'
 
         # Convert board to string for display
         rendered_outputs.append("\n".join("".join(r) for r in board))
