@@ -34,7 +34,7 @@ def play(env, Q, max_steps=100):
         # Get agent position AFTER move
         row, col = divmod(next_state, ncol)
 
-        # Render board and highlight agent's tile with backticks
+        # Render board and highlight agent's tile with double quotes
         board_str = env.render()
         board_lines = board_str.strip().split('\n')
         highlighted_lines = []
@@ -42,7 +42,7 @@ def play(env, Q, max_steps=100):
         for r, line in enumerate(board_lines):
             tiles = list(line)
             if r == row:
-                tiles[col] = f"`{tiles[col]}`"
+                tiles[col] = f'"{tiles[col]}"'
             highlighted_lines.append(''.join(tiles))
 
         rendered_outputs.append('\n'.join(highlighted_lines))
@@ -64,7 +64,7 @@ def play(env, Q, max_steps=100):
     for r, line in enumerate(board_lines):
         tiles = list(line)
         if r == row:
-            tiles[col] = f"`{tiles[col]}`"
+            tiles[col] = f'"{tiles[col]}"'
         highlighted_lines.append(''.join(tiles))
 
     rendered_outputs.append('\n'.join(highlighted_lines))
