@@ -1,72 +1,38 @@
 #!/usr/bin/env python3
 """
 Module: 4-play.py
-Purpose: Let a trained Q-learning agent play one episode on FrozenLake.
+Purpose: Play one episode using a trained Q-table, showing agent's position.
 """
 import numpy as np
 
-
 def play(env, Q, max_steps=100):
-    """
-    Run one episode with a trained Q-table and return rewards and rendered states.
-
-    Args:
-        env: FrozenLakeEnv instance (with render_mode="ansi").
-        Q (np.ndarray): Trained Q-table.
-        max_steps (int): Maximum number of steps in the episode.
-
-    Returns:
-        total_reward (float): Total reward obtained in the episode.
-        rendered_outputs (list of str): Board states at each step, with agent
-                                        position highlighted and actions shown.
-    """
-    state = env.reset()[0]
-    total_reward = 0
     rendered_outputs = []
+    total_rewards = 0
 
-    nrow, ncol = env.unwrapped.desc.shape
+    state = env.reset()[0]  # initial observation
+    n = len(env.unwrapped.desc)
+
+    def render_board(s):
+        board = env.unwrapped.desc.copy().tolist()
+        for r in range(n):
+            board[r] = [c.decode() if isinstance(c, bytes) else c for c in board[r]]
+        row, col = divmod(s, n)
+        board[row][col] = f"`{board[row][col]}`"
+        return "\n".join("".join(r) for r in board)
+
+    # Show initial state before first move
+    rendered_outputs.append(render_board(state))
 
     for _ in range(max_steps):
         action = int(np.argmax(Q[state]))
-        next_state, reward, terminated, truncated, _ = env.step(action)
-        total_reward += reward
+        next_state, reward, done, truncated, _ = env.step(action)
+        total_rewards += reward
 
-        # Get agent position AFTER move
-        row, col = divmod(next_state, ncol)
-
-        # Render board and highlight agent's tile with double quotes
-        board_str = env.render()
-        board_lines = board_str.strip().split('\n')
-        highlighted_lines = []
-
-        for r, line in enumerate(board_lines):
-            tiles = list(line)
-            if r == row:
-                tiles[col] = f'"{tiles[col]}"'
-            highlighted_lines.append(''.join(tiles))
-
-        rendered_outputs.append('\n'.join(highlighted_lines))
-
-        # Add action annotation
-        action_str = {0: "(Left)", 1: "(Down)", 2: "(Right)", 3: "(Up)"}[action]
-        rendered_outputs.append("  " + action_str)
+        # Append board + action as one string
+        rendered_outputs.append(f"{render_board(next_state)}\n  ({['Left','Down','Right','Up'][action]})")
 
         state = next_state
-        if terminated or truncated:
+        if done or truncated:
             break
 
-    # Final board state
-    row, col = divmod(state, ncol)
-    board_str = env.render()
-    board_lines = board_str.strip().split('\n')
-    highlighted_lines = []
-
-    for r, line in enumerate(board_lines):
-        tiles = list(line)
-        if r == row:
-            tiles[col] = f'"{tiles[col]}"'
-        highlighted_lines.append(''.join(tiles))
-
-    rendered_outputs.append('\n'.join(highlighted_lines))
-
-    return total_reward, rendered_outputs
+    return total_rewards, rendered_outputs
