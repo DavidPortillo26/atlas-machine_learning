@@ -23,39 +23,22 @@ epsilon_greedy = __import__('2-epsilon_greedy').epsilon_greedy
 def train(env, Q, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99,
           epsilon=1, min_epsilon=0.1, epsilon_decay=0.05):
     """
-    Train a Q-learning agent on the given environment.
-
-    Args:
-        env: FrozenLakeEnv instance.
-        Q (np.ndarray): Q-table of shape (n_states, n_actions).
-        episodes (int): Number of episodes to train over.
-        max_steps (int): Max steps per episode.
-        alpha (float): Learning rate.
-        gamma (float): Discount factor.
-        epsilon (float): Initial epsilon for epsilon-greedy.
-        min_epsilon (float): Minimum epsilon after decay.
-        epsilon_decay (float): Decay rate per episode.
-
-    Returns:
-        Q (np.ndarray): Updated Q-table.
-        total_rewards (list): Reward obtained in each episode.
+    Train a Q-learning agent on the given environment with deterministic seeds.
     """
     total_rewards = []
+
+    np.random.seed(0)             # Seed NumPy for deterministic exploration
+    env.reset(seed=0)             # Seed the environment
 
     for ep in range(episodes):
         state = env.reset()[0]
         reward_sum = 0
-        raw_env = env.unwrapped  # Access the underlying FrozenLake environment
 
         for step in range(max_steps):
             action = epsilon_greedy(Q, state, epsilon)
             new_state, reward, done, truncated, _ = env.step(action)
 
-            """# Handle holes
-            if reward == 0 and raw_env.desc.flatten()[new_state] == b'H':
-                reward = -1"""
-
-            # Q-learning update
+            # Q-learning update (no hole penalty)
             Q[state, action] = Q[state, action] + alpha * (
                 reward + gamma * np.max(Q[new_state]) - Q[state, action]
             )
@@ -65,7 +48,6 @@ def train(env, Q, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99,
 
             if done:
                 break
-
 
         # Decay epsilon
         epsilon = max(min_epsilon, epsilon * (1 - epsilon_decay))
