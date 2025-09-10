@@ -55,7 +55,7 @@ def play(env, Q, max_steps=100):
     row, col = divmod(state, n)
     for r in range(n):
         board[r] = [c.decode() if isinstance(c, bytes) else c for c in board[r]]
-    board[row][col] = f"`{board[row][col]}`"
+    board[row][col] = f'"{board[row][col]}"'
     rendered_outputs.append("\n".join("".join(r) for r in board))
 
     return total_rewards, rendered_outputs
