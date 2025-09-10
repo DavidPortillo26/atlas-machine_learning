@@ -18,8 +18,9 @@ def q_init(env):
     Initialize a Q-table with zeros.
 
     This function creates a table where each row represents a possible state
-    of the environment, and each column represents a possible action. Initially,
-    all the values are set to zero because the agent hasn't learned anything yet.
+    of the environment, and each column represents a possible action.
+    Initially,all the values are set to zero because the agent
+    hasn't learned anything yet.
 
     Args:
         env (np.ndarray or gym.Env):
