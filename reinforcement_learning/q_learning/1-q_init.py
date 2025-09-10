@@ -1,22 +1,39 @@
 #!/usr/bin/env python3
 import numpy as np
 
-""" Module for initializing Q-table """
+""" 
+Module for initializing a Q-table for reinforcement learning.
 
+A Q-table is a table used in Q-learning (a type of reinforcement learning)
+to store “scores” (Q-values) for every possible action in every possible state.
+These scores help an agent decide which action to take in each situation.
+
+This module provides a function to create a Q-table initialized with zeros,
+so the agent can start learning from scratch.
+"""
 
 def q_init(env):
     """
-    Initialize the Q-table with zeros.
+    Initialize a Q-table with zeros.
+
+    This function creates a table where each row represents a possible state
+    of the environment, and each column represents a possible action in that state.
+    Initially, all the values are set to zero because the agent hasn't learned
+    anything yet.
 
     Args:
         env (np.ndarray or gym.Env):
-            - If np.ndarray: transition matrix representing the environment.
-                             Shape: (n_states, n_actions)
-            - If gym.Env: environment with discrete
-            observation and action spaces.
+            - If a NumPy array (`np.ndarray`): this represents a pre-defined
+              transition matrix for the environment. Its shape should be
+              (number of states, number of actions).
+            - If a Gym environment (`gym.Env`): this is an object representing
+              the environment where the agent will act. The environment must have
+              discrete states and actions (like FrozenLake).
 
     Returns:
-        np.ndarray: Zero-initialized Q-table of shape (n_states, n_actions).
+        np.ndarray: A 2D table (array) of zeros with shape (number of states, number of actions).
+                    Each cell in the table will eventually store the Q-value for taking
+                    that action in that state.
     """
     if isinstance(env, np.ndarray):
         # Transition matrix case
