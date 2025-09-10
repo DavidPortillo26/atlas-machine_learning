@@ -51,9 +51,9 @@ def train(env, Q, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99,
             action = epsilon_greedy(Q, state, epsilon)
             new_state, reward, done, truncated, _ = env.step(action)
 
-            # Handle holes
+            """# Handle holes
             if reward == 0 and raw_env.desc.flatten()[new_state] == b'H':
-                reward = -1
+                reward = -1"""
 
             # Q-learning update
             Q[state, action] = Q[state, action] + alpha * (
