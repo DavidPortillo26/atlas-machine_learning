@@ -1,46 +1,47 @@
 #!/usr/bin/env python3
 """
 Module: 4-play.py
-Purpose: Let a trained Q-learning agent play a single episode on FrozenLake.
-
-The agent always exploits the Q-table to select the best action.
-Each step of the environment is rendered using "ansi" mode, and the final
-state is also displayed.
-
-Returns:
-- total_rewards: Total reward obtained in the episode.
-- rendered_outputs: List of string representations of the board at each step.
+Purpose: Play one episode using a trained Q-table, showing agent's position.
 """
 import numpy as np
 
-
 def play(env, Q, max_steps=100):
     """
-    Play one episode using the trained Q-table, always exploiting.
-
+    Play a single episode with exploitation only, rendering each step
+    with the agent highlighted using backticks.
+    
     Args:
-        env: FrozenLakeEnv instance.
+        env: FrozenLakeEnv instance (render_mode="ansi").
         Q (np.ndarray): Trained Q-table.
-        max_steps (int): Maximum steps in the episode.
-
+        max_steps (int): Maximum steps for the episode.
+    
     Returns:
-        total_rewards (float): Total reward obtained.
-        rendered_outputs (list): List of board states (strings) at each step.
+        total_rewards (float): Total reward accumulated.
+        rendered_outputs (list): Board states with agent highlighted.
     """
     rendered_outputs = []
     total_rewards = 0
 
     state = env.reset()[0]  # reset returns (obs, info)
-
+    
     for step in range(max_steps):
-        # Exploit: choose best action
-        action = np.argmax(Q[state])
+        action = np.argmax(Q[state])          # Exploit best action
+        new_state, reward, done, truncated, _ = env.step(action)
 
-        # Take the action
-        new_state, reward, done, truncated, info = env.step(action)
+        # Get the flattened board
+        board = env.unwrapped.desc.copy().tolist()
+        n = len(board)
+        # Determine agent's row and column
+        row, col = divmod(new_state, n)
+        # Convert bytes to string if needed
+        for r in range(n):
+            board[r] = [c.decode() if isinstance(c, bytes) else c for c in board[r]]
+        # Highlight agent's position
+        board[row][col] = f"`{board[row][col]}`"
 
-        # Render current board and append to outputs
-        rendered_outputs.append(env.render())
+        # Convert board to string for display
+        rendered_outputs.append("\n".join("".join(r) for r in board))
+        rendered_outputs.append(f"  ({['Left','Down','Right','Up'][action]})")
 
         total_rewards += reward
         state = new_state
@@ -48,7 +49,13 @@ def play(env, Q, max_steps=100):
         if done:
             break
 
-    # Render final state
-    rendered_outputs.append(env.render())
+    # Show final state
+    board = env.unwrapped.desc.copy().tolist()
+    n = len(board)
+    row, col = divmod(state, n)
+    for r in range(n):
+        board[r] = [c.decode() if isinstance(c, bytes) else c for c in board[r]]
+    board[row][col] = f"`{board[row][col]}`"
+    rendered_outputs.append("\n".join("".join(r) for r in board))
 
     return total_rewards, rendered_outputs
