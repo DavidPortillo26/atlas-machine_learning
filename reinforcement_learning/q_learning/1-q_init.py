@@ -12,7 +12,8 @@ def q_init(env):
         env (np.ndarray or gym.Env):
             - If np.ndarray: transition matrix representing the environment.
                              Shape: (n_states, n_actions)
-            - If gym.Env: environment with discrete observation and action spaces.
+            - If gym.Env: environment with discrete
+            observation and action spaces.
 
     Returns:
         np.ndarray: Zero-initialized Q-table of shape (n_states, n_actions).
