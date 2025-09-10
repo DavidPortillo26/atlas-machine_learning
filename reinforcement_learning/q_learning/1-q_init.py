@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import numpy as np
-
 """
 Module for initializing a Q-table for reinforcement learning.
 
@@ -11,6 +9,7 @@ These scores help an agent decide which action to take in each situation.
 This module provides a function to create a Q-table initialized with zeros,
 so the agent can start learning from scratch.
 """
+import numpy as np
 
 
 def q_init(env):
