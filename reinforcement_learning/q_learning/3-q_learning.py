@@ -43,21 +43,19 @@ def train(env, Q, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99,
     total_rewards = []
 
     for ep in range(episodes):
-        state = env.reset()[0]  # env.reset() returns a tuple in Gymnasium
+        state = env.reset()[0]
         reward_sum = 0
+        raw_env = env.unwrapped  # Access the underlying FrozenLake environment
 
         for step in range(max_steps):
-            # Choose next action using epsilon-greedy
             action = epsilon_greedy(Q, state, epsilon)
-
-            # Take the action in the environment
             new_state, reward, done, truncated, _ = env.step(action)
 
-            # If agent falls in a hole, set reward to -1
-            if reward == 0 and env.desc.flatten()[new_state] == b'H':
+            # Handle holes
+            if reward == 0 and raw_env.desc.flatten()[new_state] == b'H':
                 reward = -1
 
-            # Q-learning update rule
+            # Q-learning update
             Q[state, action] = Q[state, action] + alpha * (
                 reward + gamma * np.max(Q[new_state]) - Q[state, action]
             )
@@ -67,6 +65,7 @@ def train(env, Q, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99,
 
             if done:
                 break
+
 
         # Decay epsilon
         epsilon = max(min_epsilon, epsilon * (1 - epsilon_decay))
