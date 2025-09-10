@@ -31,14 +31,14 @@ def train(env, Q, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99,
     env.reset(seed=0)             # Seed the environment
 
     for ep in range(episodes):
-        state = env.reset()[0]
+        np.random.seed(ep)
+        state = env.reset(seed=ep)[0]
         reward_sum = 0
 
         for step in range(max_steps):
             action = epsilon_greedy(Q, state, epsilon)
             new_state, reward, done, truncated, _ = env.step(action)
 
-            # Q-learning update (no hole penalty)
             Q[state, action] = Q[state, action] + alpha * (
                 reward + gamma * np.max(Q[new_state]) - Q[state, action]
             )
@@ -49,8 +49,8 @@ def train(env, Q, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99,
             if done:
                 break
 
-        # Decay epsilon
         epsilon = max(min_epsilon, epsilon * (1 - epsilon_decay))
         total_rewards.append(reward_sum)
+
 
     return Q, total_rewards
