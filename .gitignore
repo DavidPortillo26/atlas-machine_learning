@@ -1,1 +1,3 @@
 supervised_learning/transformer_apps/hf-env/
+# Python venv
+venv/
