@@ -1,96 +1,118 @@
 #!/usr/bin/env python3
 """
-Train weights to play Atari
+Train a DQN agent on Atari Breakout using keras-rl2 and TensorFlow/Keras.
 """
 
 import warnings
-
-# Suppress all urllib3 SSL warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
-
-# Suppress pkg_resources deprecation warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="pkg_resources")
-
-from PIL import Image
-import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.optimizers import Adam
 import gymnasium as gym
+from gymnasium.wrappers import AtariPreprocessing
+import numpy as np
+
+# Patch missing __version__ for keras-rl2 compatibility
+if not hasattr(keras, "__version__"):
+    keras.__version__ = tf.__version__
 
 from rl.agents.dqn import DQNAgent
-from rl.policy import LinearAnnealedPolicy, BoltzmannQPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
+from rl.policy import EpsGreedyQPolicy
 from rl.core import Processor
 
-from tensorflow import keras as K
-from tensorflow.keras import layers
+
+# ============================================================
+# Inline replacement for utils/ files
+# ============================================================
+
+class GymCompatibilityWrapper(gym.Wrapper):
+    """Make Gymnasium envs compatible with keras-rl2 (old Gym API)."""
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
+        return obs
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        done = terminated or truncated
+        return obs, reward, done, info
 
 
-class AtariProcessor(Processor):
-    """Processor for Atari"""
+def model_template(input_shape, n_actions):
+    """DeepMind-style ConvNet for Atari DQN."""
+    inputs = keras.Input(shape=input_shape)
 
+    x = keras.layers.Conv2D(32, (8, 8), strides=(4, 4), activation="relu")(inputs)
+    x = keras.layers.Conv2D(64, (4, 4), strides=(2, 2), activation="relu")(x)
+    x = keras.layers.Conv2D(64, (3, 3), strides=(1, 1), activation="relu")(x)
+
+    x = keras.layers.Flatten()(x)
+    x = keras.layers.Dense(512, activation="relu")(x)
+    outputs = keras.layers.Dense(n_actions, activation="linear")(x)
+
+    return keras.Model(inputs=inputs, outputs=outputs)
+
+
+class StackDimProcessor(Processor):
+    """Ensure observations/rewards are properly formatted for keras-rl2."""
     def process_observation(self, observation):
-        INPUT_SHAPE = (84, 84)
-        assert observation.ndim == 3
-        img = Image.fromarray(observation).resize(INPUT_SHAPE).convert('L')
-        processed_observation = np.array(img)
-        assert processed_observation.shape == (84, 84)
-        return processed_observation.astype('uint8')
+        return np.array(observation).astype("float32")
 
     def process_state_batch(self, batch):
-        return batch.astype('float32') / 255.
+        return batch.astype("float32")
 
     def process_reward(self, reward):
         return np.clip(reward, -1., 1.)
 
 
-if __name__ == '__main__':
-    env = gym.make("ALE/Breakout-v5")
-    env.reset()
-    nb_actions = env.action_space.n
+# ============================================================
+# Training code
+# ============================================================
 
-    INPUT_SHAPE = (84, 84)
-    WINDOW_LENGTH = 4
-    input_shape = (WINDOW_LENGTH,) + INPUT_SHAPE
+def make_env(env_id="BreakoutNoFrameskip-v4"):
+    """Create Atari environment with preprocessing + compatibility wrapper."""
+    env = gym.make(env_id)
+    env = AtariPreprocessing(
+        env,
+        noop_max=7,
+        frame_skip=4,
+        screen_size=84,
+        terminal_on_life_loss=True,
+        grayscale_obs=True,
+        grayscale_newaxis=True,
+        scale_obs=False,
+    )
+    env = GymCompatibilityWrapper(env)
+    return env
 
-    # Build Conv2D model
-    inputs = layers.Input(shape=input_shape)
-    perm = layers.Permute((2, 3, 1))(inputs)
-    layer = layers.Conv2D(32, 8, strides=(4, 4), activation='relu',
-                          data_format="channels_last")(perm)
-    layer = layers.Conv2D(64, 4, strides=(2, 2), activation='relu',
-                          data_format="channels_last")(layer)
-    layer = layers.Conv2D(64, 3, strides=(1, 1), activation='relu',
-                          data_format="channels_last")(layer)
-    layer = layers.Flatten()(layer)
-    layer = layers.Dense(512, activation='relu')(layer)
-    activation = layers.Dense(nb_actions, activation='linear')(layer)
-    model = K.Model(inputs=inputs, outputs=activation)
-    model.summary()
 
-    memory = SequentialMemory(limit=1000000, window_length=WINDOW_LENGTH)
-    processor = AtariProcessor()
+if __name__ == "__main__":
+    env = make_env()
 
-    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(),
-                                  attr='eps',
-                                  value_max=1.,
-                                  value_min=.1,
-                                  value_test=.05,
-                                  nb_steps=1000000)
+    n_actions = env.action_space.n
+    state_shape = (84, 84, 4)  # 4 stacked frames
+    model = model_template(state_shape, n_actions)
 
-    dqn = DQNAgent(model=model, nb_actions=nb_actions,
-                   policy=policy, memory=memory,
-                   processor=processor, nb_steps_warmup=50000,
-                   gamma=.99, target_model_update=10000,
-                   train_interval=4, delta_clip=1.)
+    memory = SequentialMemory(limit=1000000, window_length=4)
+    policy = EpsGreedyQPolicy()
 
-    dqn.compile(K.optimizers.Adam(lr=.00025), metrics=['mae'])
+    dqn = DQNAgent(
+        model=model,
+        nb_actions=n_actions,
+        memory=memory,
+        processor=StackDimProcessor(),
+        policy=policy,
+        nb_steps_warmup=50000,
+        target_model_update=10000,
+        train_interval=4,
+        delta_clip=1.0,
+    )
 
-    # Training
-    dqn.fit(env,
-            nb_steps=1000000,
-            log_interval=100000,
-            visualize=False,
-            verbose=2)
+    dqn.compile(Adam(learning_rate=0.00025), metrics=["mae"])
 
-    # Save weights and model
-    dqn.save_weights('policy.h5', overwrite=True)
-    model.save("policy_model.h5")
+    # Train agent
+    dqn.fit(env, nb_steps=1000000, visualize=False, verbose=2)
+
+    # Save trained weights
+    dqn.save_weights("policy.h5", overwrite=True)
+
+    env.close()
