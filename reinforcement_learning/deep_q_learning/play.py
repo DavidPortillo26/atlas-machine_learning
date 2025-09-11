@@ -1,73 +1,65 @@
 #!/usr/bin/env python3
+"""
+Using training weights to play games of attari and show results
+"""
 import gymnasium as gym
-from keras.models import Sequential
-from keras.layers import Dense, Flatten, Conv2D, Permute
-from keras.optimizers import Adam
-
 from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
-from rl.policy import GreedyQPolicy
+from keras import layers
+import keras as K
+import numpy as np
+import warnings
+
+# Suppress all urllib3 SSL warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="urllib3")
+
+# Suppress pkg_resources deprecation warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pkg_resources")
 
 
-# Wrappers for gymnasium compatibility with keras-rl
-class AtariProcessor(gym.Wrapper):
-    def __init__(self, env):
-        super().__init__(env)
-
-    def reset(self, **kwargs):
-        obs, info = self.env.reset(**kwargs)
-        return obs
-
-    def step(self, action):
-        obs, reward, terminated, truncated, info = self.env.step(action)
-        done = terminated or truncated
-        return obs, reward, done, info
-
-    def render(self, *args, **kwargs):
-        return self.env.render(*args, **kwargs)
+AtariProcessor = __import__('train').AtariProcessor
 
 
-def build_model(actions, input_shape):
-    model = Sequential()
-    model.add(Permute((2, 3, 1), input_shape=input_shape))  # channels last
-    model.add(Conv2D(32, (8, 8), strides=(4, 4), activation="relu"))
-    model.add(Conv2D(64, (4, 4), strides=(2, 2), activation="relu"))
-    model.add(Conv2D(64, (3, 3), strides=(1, 1), activation="relu"))
-    model.add(Flatten())
-    model.add(Dense(512, activation="relu"))
-    model.add(Dense(actions, activation="linear"))
-    return model
-
-
-def main():
-    env = gym.make("ALE/Breakout-v5", render_mode="human", frameskip=1)
-    env = AtariProcessor(env)
-
+if __name__ == '__main__':
+    env = gym.make("ALE/Breakout-v5")
+    env.reset()
+    #np.random.seed(123)
+    # env.seed(123)
     nb_actions = env.action_space.n
-    obs_shape = (1,) + env.observation_space.shape
 
-    model = build_model(nb_actions, obs_shape)
+    INPUT_SHAPE = (84, 84)
+    WINDOW_LENGTH = 4
 
-    memory = SequentialMemory(limit=1000000, window_length=1)
-    policy = GreedyQPolicy()
+    input_shape = (WINDOW_LENGTH,) + INPUT_SHAPE
+    # build Conv2d model
+    inputs = layers.Input(shape=input_shape)
+    perm = layers.Permute((2, 3, 1))(inputs)
 
-    dqn = DQNAgent(
-        model=model,
-        nb_actions=nb_actions,
-        memory=memory,
-        nb_steps_warmup=0,
-        target_model_update=10000,
-        policy=policy,
-    )
-    dqn.compile(Adam(learning_rate=0.00025), metrics=["mae"])
+    layer = layers.Conv2D(32, 8, strides=(4, 4), activation='relu',
+                          data_format="channels_last")(perm)
+    layer = layers.Conv2D(64, 4, strides=(2, 2), activation='relu',
+                          data_format="channels_last")(layer)
+    layer = layers.Conv2D(64, 3, strides=(1, 1), activation='relu',
+                          data_format="channels_last")(layer)
 
-    # Load weights from training
-    dqn.load_weights("policy.h5")
+    layer = layers.Flatten()(layer)
+    layer = layers.Dense(512, activation='relu')(layer)
+    # Linear activation
+    activation = layers.Dense(nb_actions, activation='linear')(layer)
+    model = K.Model(inputs=inputs, outputs=activation)
 
-    # Play 5 episodes
-    dqn.test(env, nb_episodes=5, visualize=True)
-    env.close()
+    memory = SequentialMemory(limit=1000000, window_length=WINDOW_LENGTH)
+    processor = AtariProcessor()
 
+    dqn = DQNAgent(model=model,
+                   nb_actions=nb_actions,
+                   processor=processor,
+                   memory=memory)
 
-if __name__ == "__main__":
-    main()
+    dqn.compile(K.optimizers.Adam(lr=.00025), metrics=['mae'])
+
+    # load weights.
+    dqn.load_weights('policy.h5')
+
+    # evaluate algorithm for 10 episodes.
+    dqn.test(env, nb_episodes=10, visualize=True)
