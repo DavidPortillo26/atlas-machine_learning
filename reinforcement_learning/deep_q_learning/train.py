@@ -25,7 +25,7 @@ from utils.processors import StackDimProcessor
 from utils.callbacks import EpisodicTargetNetworkUpdate
 
 
-def make_env(env_id="BreakoutNoFrameskip-v4", render_mode=None):
+def make_env(env_id="ALE/Breakout-v5", render_mode=None):
     """Create Atari environment with preprocessing + compatibility fixes."""
     env = gym.make(env_id, render_mode=render_mode) if render_mode else gym.make(env_id)
 
@@ -58,7 +58,7 @@ def train_agent(env, state_shape, n_actions, window_length=4, steps=100000):
         value_max=1.0,
         value_min=0.1,
         value_test=0.05,
-        nb_steps=1000000,
+        nb_steps=1_000_000,
     )
 
     dqn = DQNAgent(
@@ -89,13 +89,12 @@ def train_agent(env, state_shape, n_actions, window_length=4, steps=100000):
 
 
 if __name__ == "__main__":
-    env = make_env("BreakoutNoFrameskip-v4")
+    env = make_env("ALE/Breakout-v5")
 
-    # Breakout setup
     n_actions = env.action_space.n
     state_shape = (84, 84, 4)
 
-    dqn = train_agent(env, state_shape, n_actions, window_length=4, steps=50000)
+    dqn = train_agent(env, state_shape, n_actions, window_length=4, steps=50_000)
 
     print("Training complete. Saving model weights...")
     dqn.save_weights("policy.h5", overwrite=True)

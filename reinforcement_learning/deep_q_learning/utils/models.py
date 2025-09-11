@@ -1,22 +1,30 @@
-# utils/models.py
-from tensorflow import keras
-from tensorflow.keras import layers
+#!/usr/bin/env python3
+"""
+Module containing neural network models for DQN agents.
+"""
+from keras.models import Sequential
+from keras.layers import Dense, Flatten, Conv2D, Input
 
-def model_template(input_shape, n_actions):
+
+def model_template(state_shape, n_actions):
     """
-    Build a DeepMind-style ConvNet for Atari DQN.
-    input_shape: (H, W, C) - e.g. (84, 84, 4)
-    n_actions: number of discrete actions
+    Defines the DQN model architecture for policy and target networks.
+
+    Parameters:
+        state_shape (tuple): The shape of the input state.
+        n_actions (int): The number of possible actions.
+
+    Returns:
+        The DQN model.
     """
-    inputs = keras.Input(shape=input_shape)
-
-    x = layers.Conv2D(32, (8, 8), strides=(4, 4), activation="relu")(inputs)
-    x = layers.Conv2D(64, (4, 4), strides=(2, 2), activation="relu")(x)
-    x = layers.Conv2D(64, (3, 3), strides=(1, 1), activation="relu")(x)
-
-    x = layers.Flatten()(x)
-    x = layers.Dense(512, activation="relu")(x)
-    outputs = layers.Dense(n_actions, activation="linear")(x)
-
-    model = keras.Model(inputs=inputs, outputs=outputs, name="dqn_atari")
+    # Define model architecture from DQN paper
+    # https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
+    model = Sequential()
+    model.add(Input(shape=state_shape))
+    model.add(Conv2D(32, (8, 8), strides=4, activation='relu'))
+    model.add(Conv2D(64, (4, 4), strides=2, activation='relu'))
+    model.add(Conv2D(64, (3, 3), strides=1, activation='relu'))
+    model.add(Flatten())
+    model.add(Dense(512, activation='relu'))
+    model.add(Dense(n_actions, activation='linear'))
     return model
