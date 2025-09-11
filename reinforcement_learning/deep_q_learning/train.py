@@ -20,8 +20,8 @@ from rl.policy import LinearAnnealedPolicy, BoltzmannQPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.core import Processor
 
-from keras import layers
-import keras as K
+from tensorflow import keras as K
+from tensorflow.keras import layers
 
 
 class AtariProcessor(Processor):
