@@ -1,76 +1,34 @@
 #!/usr/bin/env python3
 """
-Train a DQN agent on Atari Breakout using keras-rl2 and TensorFlow/Keras.
+Train a DQN agent on Atari Breakout using keras-rl2 and Gymnasium.
 """
 
-import warnings
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras.optimizers import Adam
-import gymnasium as gym
-from gymnasium.wrappers import AtariPreprocessing
-import numpy as np
 
-# Patch missing __version__ for keras-rl2 compatibility
+# Patch missing keras.__version__ (needed for keras-rl2)
+from tensorflow import keras
 if not hasattr(keras, "__version__"):
     keras.__version__ = tf.__version__
 
 from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
-from rl.policy import EpsGreedyQPolicy
-from rl.core import Processor
+from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
+
+import gymnasium as gym
+from gymnasium.wrappers import AtariPreprocessing
+
+# Utils
+from utils.wrappers import GymCompatibilityWrapper
+from utils.models import model_template
+from utils.processors import StackDimProcessor
+from utils.callbacks import EpisodicTargetNetworkUpdate
 
 
-# ============================================================
-# Inline replacement for utils/ files
-# ============================================================
+def make_env(env_id="BreakoutNoFrameskip-v4", render_mode=None):
+    """Create Atari environment with preprocessing + compatibility fixes."""
+    env = gym.make(env_id, render_mode=render_mode) if render_mode else gym.make(env_id)
 
-class GymCompatibilityWrapper(gym.Wrapper):
-    """Make Gymnasium envs compatible with keras-rl2 (old Gym API)."""
-    def reset(self, **kwargs):
-        obs, info = self.env.reset(**kwargs)
-        return obs
-
-    def step(self, action):
-        obs, reward, terminated, truncated, info = self.env.step(action)
-        done = terminated or truncated
-        return obs, reward, done, info
-
-
-def model_template(input_shape, n_actions):
-    """DeepMind-style ConvNet for Atari DQN."""
-    inputs = keras.Input(shape=input_shape)
-
-    x = keras.layers.Conv2D(32, (8, 8), strides=(4, 4), activation="relu")(inputs)
-    x = keras.layers.Conv2D(64, (4, 4), strides=(2, 2), activation="relu")(x)
-    x = keras.layers.Conv2D(64, (3, 3), strides=(1, 1), activation="relu")(x)
-
-    x = keras.layers.Flatten()(x)
-    x = keras.layers.Dense(512, activation="relu")(x)
-    outputs = keras.layers.Dense(n_actions, activation="linear")(x)
-
-    return keras.Model(inputs=inputs, outputs=outputs)
-
-
-class StackDimProcessor(Processor):
-    """Ensure observations/rewards are properly formatted for keras-rl2."""
-    def process_observation(self, observation):
-        return np.array(observation).astype("float32")
-
-    def process_state_batch(self, batch):
-        return batch.astype("float32")
-
-    def process_reward(self, reward):
-        return np.clip(reward, -1., 1.)
-
-
-# ============================================================
-# Training code
-# ============================================================
-
-def make_env(env_id="BreakoutNoFrameskip-v4"):
-    """Create Atari environment with preprocessing + compatibility wrapper."""
-    env = gym.make(env_id)
     env = AtariPreprocessing(
         env,
         noop_max=7,
@@ -81,38 +39,65 @@ def make_env(env_id="BreakoutNoFrameskip-v4"):
         grayscale_newaxis=True,
         scale_obs=False,
     )
-    env = GymCompatibilityWrapper(env)
+    processor = StackDimProcessor()
+    env = GymCompatibilityWrapper(env, processor)
     return env
 
 
-if __name__ == "__main__":
-    env = make_env()
-
-    n_actions = env.action_space.n
-    state_shape = (84, 84, 4)  # 4 stacked frames
+def train_agent(env, state_shape, n_actions, window_length=4, steps=100000):
+    """Train a DQN agent with keras-rl2."""
     model = model_template(state_shape, n_actions)
+    model.summary()
 
-    memory = SequentialMemory(limit=1000000, window_length=4)
-    policy = EpsGreedyQPolicy()
+    memory = SequentialMemory(limit=1_000_000, window_length=window_length)
+
+    # Annealed epsilon-greedy policy
+    policy = LinearAnnealedPolicy(
+        EpsGreedyQPolicy(),
+        attr="eps",
+        value_max=1.0,
+        value_min=0.1,
+        value_test=0.05,
+        nb_steps=1000000,
+    )
 
     dqn = DQNAgent(
         model=model,
         nb_actions=n_actions,
         memory=memory,
-        processor=StackDimProcessor(),
+        nb_steps_warmup=50_000,
+        target_model_update=10_000,
         policy=policy,
-        nb_steps_warmup=50000,
-        target_model_update=10000,
-        train_interval=4,
-        delta_clip=1.0,
+        enable_double_dqn=True,
+        processor=StackDimProcessor(),
     )
 
     dqn.compile(Adam(learning_rate=0.00025), metrics=["mae"])
 
-    # Train agent
-    dqn.fit(env, nb_steps=1000000, visualize=False, verbose=2)
+    # Target net update every 30 episodes
+    target_update_cb = EpisodicTargetNetworkUpdate(update_frequency=30, verbose=1)
 
-    # Save trained weights
+    dqn.fit(
+        env,
+        nb_steps=steps,
+        callbacks=[target_update_cb],
+        visualize=False,
+        verbose=2,
+    )
+
+    return dqn
+
+
+if __name__ == "__main__":
+    env = make_env("BreakoutNoFrameskip-v4")
+
+    # Breakout setup
+    n_actions = env.action_space.n
+    state_shape = (84, 84, 4)
+
+    dqn = train_agent(env, state_shape, n_actions, window_length=4, steps=50000)
+
+    print("Training complete. Saving model weights...")
     dqn.save_weights("policy.h5", overwrite=True)
 
     env.close()
