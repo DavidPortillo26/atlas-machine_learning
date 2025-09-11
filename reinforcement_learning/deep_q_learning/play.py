@@ -1,78 +1,87 @@
 #!/usr/bin/env python3
 """
-Play Atari Breakout with a trained DQN agent.
+Script to visualize a trained DQN agent playing Atari Breakout.
 """
-
-import tensorflow as tf
-from tensorflow.keras.optimizers import Adam
-
-# Patch keras version for keras-rl2
-from tensorflow import keras
-if not hasattr(keras, "__version__"):
-    keras.__version__ = tf.__version__
-
+import argparse
+from keras.optimizers.legacy import Adam
 from rl.agents.dqn import DQNAgent
-from rl.memory import SequentialMemory
 from rl.policy import GreedyQPolicy
+from rl.memory import SequentialMemory
 
-import gymnasium as gym
-from gymnasium.wrappers import AtariPreprocessing
-
-# Utils
-from utils.wrappers import GymCompatibilityWrapper
-from utils.models import model_template
+# Import functions from train.py
+from train import make_env, model_template
 from utils.processors import StackDimProcessor
+from utils.patching import patch_dqn_for_continuous_training
 
 
-def make_env(env_id="ALE/Breakout-v5", render_mode="human"):
-    """Create evaluation environment with rendering enabled."""
-    env = gym.make(env_id, render_mode=render_mode)
-
-    env = AtariPreprocessing(
-        env,
-        noop_max=7,
-        frame_skip=4,
-        screen_size=84,
-        terminal_on_life_loss=True,
-        grayscale_obs=True,
-        grayscale_newaxis=True,
-        scale_obs=False,
-    )
-    processor = StackDimProcessor()
-    env = GymCompatibilityWrapper(env, processor)
-    return env
-
-
-if __name__ == "__main__":
-    env = make_env("ALE/Breakout-v5", render_mode="human")
-
+def main(weights_path='policy.h5'):
+    """
+    Load and visualize a trained DQN agent playing Breakout.
+    
+    Parameters:
+        weights_path (str): Path to the trained model weights file.
+    """
+    print(f"Loading weights from: {weights_path}")
+    
+    # Create environment with rendering enabled
+    env = make_env('BreakoutNoFrameskip-v4', render_mode='human')
+    
+    # Get dimensions
     n_actions = env.action_space.n
-    state_shape = (84, 84, 4)
-
-    # Build model (must match training model)
+    
+    # Set window length for frame stacking
+    window_length = 4
+    
+    # Set the state shape to include the window length
+    state_shape = (84, 84, window_length)
+    
+    # Build DQN model with same architecture as training
     model = model_template(state_shape, n_actions)
-
-    try:
-        model = keras.models.load_model("policy.h5")
-        print("Loaded full model from policy.h5")
-    except Exception:
-        print("Loading weights into model from policy.h5")
-        model.load_weights("policy.h5")
-
-    memory = SequentialMemory(limit=1_000_000, window_length=4)
+    
+    # Configure agent with GreedyQPolicy for evaluation (no exploration)
+    memory = SequentialMemory(limit=10000, window_length=window_length)
     policy = GreedyQPolicy()
-
+    
     dqn = DQNAgent(
         model=model,
         nb_actions=n_actions,
         memory=memory,
+        nb_steps_warmup=100,  # Smaller warmup for testing
+        target_model_update=10000,
         policy=policy,
-        processor=StackDimProcessor(),
+        enable_double_dqn=True,
+        processor=StackDimProcessor()  # Use the same processor as in training
     )
-
-    dqn.compile(Adam(learning_rate=0.00025), metrics=["mae"])
-
-    # Play for a few episodes
+    
+    # Compile the agent
+    dqn.compile(Adam(learning_rate=0.00025), metrics=['mae'])
+    
+    # Patch the agent to avoid warmup resets - exactly as in the notebook
+    dqn = patch_dqn_for_continuous_training(dqn)
+    
+    # Load trained weights
+    try:
+        dqn.load_weights(weights_path)
+        print(f"Successfully loaded weights from {weights_path}")
+    except (IOError, ValueError) as e:
+        print(f"Error loading weights: {e}")
+        return
+    
+    # Test for 5 episodes
     dqn.test(env, nb_episodes=5, visualize=True)
-
+    
     env.close()
+
+
+if __name__ == "__main__":
+    # Set up command line argument parsing
+    parser = argparse.ArgumentParser(description='Play Atari Breakout with a trained DQN agent')
+    parser.add_argument('--weights', type=str, default='policy.h5',
+                      help='Path to the weights file (default: policy.h5)')
+    parser.add_argument('--episodes', type=int, default=5,
+                      help='Number of episodes to play (default: 5)')
+    
+    args = parser.parse_args()
+    
+    # Call main with the provided weights path
+    main(args.weights)

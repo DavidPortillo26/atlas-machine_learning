@@ -1,102 +1,131 @@
 #!/usr/bin/env python3
 """
-Train a DQN agent on Atari Breakout using keras-rl2 and Gymnasium.
+Module defines the training suite for the Atari Breakout DQN agent
+using keras-rl2.
 """
-
-import tensorflow as tf
-from tensorflow.keras.optimizers import Adam
-
-# Patch missing keras.__version__ (needed for keras-rl2)
-from tensorflow import keras
-if not hasattr(keras, "__version__"):
-    keras.__version__ = tf.__version__
-
+import numpy as np
+from keras.optimizers.legacy import Adam
 from rl.agents.dqn import DQNAgent
-from rl.memory import SequentialMemory
 from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
-
+from rl.memory import SequentialMemory
 import gymnasium as gym
 from gymnasium.wrappers import AtariPreprocessing
 
-# Utils
+# Import utilities
 from utils.wrappers import GymCompatibilityWrapper
 from utils.models import model_template
 from utils.processors import StackDimProcessor
 from utils.callbacks import EpisodicTargetNetworkUpdate
 
 
-def make_env(env_id="ALE/Breakout-v5", render_mode=None):
-    """Create Atari environment with preprocessing + compatibility fixes."""
-    env = gym.make(env_id, render_mode=render_mode) if render_mode else gym.make(env_id)
+def make_env(env_id, render_mode=None):
+    """
+    Creates a wrapped Atari environment for use with keras-rl2
+ 
+    Parameters:
+        env_id (str): The id of the environment to create.
+        render_mode (str, optional): The render mode to use.
 
+    Returns:
+        The wrapped environment.
+    """
+    if render_mode:
+        env = gym.make(env_id, render_mode=render_mode)
+    else:
+        env = gym.make(env_id)
+
+    # Apply Atari preprocessing
     env = AtariPreprocessing(
         env,
-        noop_max=7,
-        frame_skip=4,
-        screen_size=84,
-        terminal_on_life_loss=True,
-        grayscale_obs=True,
-        grayscale_newaxis=True,
-        scale_obs=False,
+        noop_max=7,                  # No-op action for up to 7 frames
+        frame_skip=4,                # Skip every 4 frames 
+        screen_size=84,              # Resize to 84x84
+        terminal_on_life_loss=True,  # End episode on life loss
+        grayscale_obs=True,          # Convert to grayscale
+        grayscale_newaxis=True,      # Keep the channel dimension
+        scale_obs=False,             # Do not scale observations
     )
+    
+    # Create processor for dimension handling
     processor = StackDimProcessor()
+    
+    # Make compatible with keras-rl
     env = GymCompatibilityWrapper(env, processor)
+    
     return env
 
 
-def train_agent(env, state_shape, n_actions, window_length=4, steps=100000):
-    """Train a DQN agent with keras-rl2."""
+def train_agent(env, state_shape, n_actions, window_length=4, steps=5000000):
+    """Train a DQN agent using keras-rl2."""
+    # Build DQN model
     model = model_template(state_shape, n_actions)
     model.summary()
-
-    memory = SequentialMemory(limit=1_000_000, window_length=window_length)
-
-    # Annealed epsilon-greedy policy
+    
+    # Configure agent
+    memory = SequentialMemory(limit=1000000, window_length=window_length)
+    
+    # Use an annealed epsilon-greedy policy for better exploration
     policy = LinearAnnealedPolicy(
         EpsGreedyQPolicy(),
-        attr="eps",
+        attr='eps',
         value_max=1.0,
         value_min=0.1,
         value_test=0.05,
-        nb_steps=1_000_000,
+        nb_steps=1000000
     )
-
+    
+    # Create the DQN agent
     dqn = DQNAgent(
         model=model,
         nb_actions=n_actions,
         memory=memory,
-        nb_steps_warmup=50_000,
-        target_model_update=10_000,
+        nb_steps_warmup=50000,
+        target_model_update=10000,  # Will be overridden by our callback
         policy=policy,
         enable_double_dqn=True,
-        processor=StackDimProcessor(),
+        processor=StackDimProcessor()
     )
-
-    dqn.compile(Adam(learning_rate=0.00025), metrics=["mae"])
-
-    # Target net update every 30 episodes
-    target_update_cb = EpisodicTargetNetworkUpdate(update_frequency=30, verbose=1)
-
+    
+    # Compile DQN agent
+    dqn.compile(Adam(learning_rate=0.00025), metrics=['mae'])
+    
+    # Create episodic target update callback
+    target_update_callback = EpisodicTargetNetworkUpdate(
+        update_frequency=30,  # Update target network every 30 episodes
+        verbose=1
+    )
+    
+    # Train agent
     dqn.fit(
         env,
         nb_steps=steps,
-        callbacks=[target_update_cb],
+        callbacks=[target_update_callback],
         visualize=False,
-        verbose=2,
+        verbose=2
     )
-
+    
     return dqn
 
 
 if __name__ == "__main__":
-    env = make_env("ALE/Breakout-v5")
+    # Create environment
+    env = make_env('BreakoutNoFrameskip-v4')
 
+    # Get state and action dims
+    state_shape = env.observation_space.shape
     n_actions = env.action_space.n
-    state_shape = (84, 84, 4)
-
-    dqn = train_agent(env, state_shape, n_actions, window_length=4, steps=50_000)
-
+    
+    # Set window length for frame stacking
+    window_length = 4
+    
+    # Set the state shape to include the window length
+    state_shape = (84, 84, window_length)
+    
+    # Train the agent
+    dqn = train_agent(env, state_shape, n_actions, window_length)
+    
+    # Save model weights
     print("Training complete. Saving model weights...")
-    dqn.save_weights("policy.h5", overwrite=True)
-
+    dqn.save_weights('policy.h5', overwrite=True)
+    
     env.close()
