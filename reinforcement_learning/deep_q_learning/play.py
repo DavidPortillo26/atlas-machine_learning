@@ -24,7 +24,7 @@ from utils.models import model_template
 from utils.processors import StackDimProcessor
 
 
-def make_env(env_id="BreakoutNoFrameskip-v4", render_mode="human"):
+def make_env(env_id="ALE/Breakout-v5", render_mode="human"):
     """Create evaluation environment with rendering enabled."""
     env = gym.make(env_id, render_mode=render_mode)
 
@@ -44,7 +44,7 @@ def make_env(env_id="BreakoutNoFrameskip-v4", render_mode="human"):
 
 
 if __name__ == "__main__":
-    env = make_env("BreakoutNoFrameskip-v4", render_mode="human")
+    env = make_env("ALE/Breakout-v5", render_mode="human")
 
     n_actions = env.action_space.n
     state_shape = (84, 84, 4)
