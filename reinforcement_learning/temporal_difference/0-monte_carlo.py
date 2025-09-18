@@ -6,7 +6,7 @@ import numpy as np
 
 def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99):
     """
-    Performs the Monte Carlo algorithm for value estimation
+    Performs the Monte Carlo algorithm for value estimation.
 
     Args:
         env: environment instance
@@ -35,14 +35,14 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
             if terminated or truncated:
                 break
 
-        # Only update if episode ended at the goal
+        # Only update states if episode reached the goal
         if rewards and rewards[-1] == 1:
             G = 0
             for t in range(len(states) - 1, -1, -1):
                 G = rewards[t] + gamma * G
-                state_t = states[t]
-                # Don’t overwrite holes
-                if V[state_t] != -1:
-                    V[state_t] = G
+                s = states[t]
+                # Skip holes to preserve -1 values
+                if V[s] != -1:
+                    V[s] = G
 
     return V
