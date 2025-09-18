@@ -20,50 +20,54 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
     Returns:
         V: the updated value estimate
     """
-    # Work with a copy to avoid modifying original
+    # Work with a copy of V
     V = V.copy()
     
-    # Keep track of returns for each state
-    returns = {i: [] for i in range(len(V))}
-    
     for episode in range(episodes):
-        # Generate episode
-        episode_states = []
-        episode_rewards = []
+        # Lists to store episode data
+        states = []
+        rewards = []
         
-        # Reset environment
+        # Reset environment and get initial state
         state, _ = env.reset()
         
-        # Generate episode trajectory
+        # Generate episode
         for step in range(max_steps):
-            episode_states.append(state)
+            # Store current state
+            states.append(state)
             
             # Get action from policy
             action = policy(state)
             
-            # Take step
+            # Take step in environment
             next_state, reward, terminated, truncated, _ = env.step(action)
-            episode_rewards.append(reward)
             
+            # Store reward received
+            rewards.append(reward)
+            
+            # Move to next state
             state = next_state
             
+            # Check if episode finished
             if terminated or truncated:
                 break
         
-        # Calculate returns and update values (First-visit Monte Carlo)
+        # Calculate returns using first-visit Monte Carlo
         G = 0
-        visited_states_in_episode = set()
+        visited = set()
         
-        # Process episode backwards
-        for t in reversed(range(len(episode_states))):
-            G = episode_rewards[t] + gamma * G
-            state_t = episode_states[t]
+        # Work backwards through episode
+        for t in range(len(states) - 1, -1, -1):
+            # Calculate discounted return
+            G = rewards[t] + gamma * G
             
-            # First-visit Monte Carlo
-            if state_t not in visited_states_in_episode:
-                visited_states_in_episode.add(state_t)
-                returns[state_t].append(G)
-                # Update value as average of returns
-                V[state_t] = np.mean(returns[state_t])
+            state_t = states[t]
+            
+            # Only update on first visit to state in this episode
+            if state_t not in visited:
+                visited.add(state_t)
+                
+                # Incremental update: V(s) ← V(s) + α[G - V(s)]
+                V[state_t] += alpha * (G - V[state_t])
     
     return V
