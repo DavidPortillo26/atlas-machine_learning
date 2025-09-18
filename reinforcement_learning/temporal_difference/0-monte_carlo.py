@@ -20,53 +20,46 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
     Returns:
         V: the updated value estimate
     """
-    # Work with a copy of V to avoid modifying the original
+    # Use incremental Monte Carlo with alpha updates
     V = V.copy()
     
     for episode in range(episodes):
-        # Generate an episode
+        # Generate episode
         states = []
         rewards = []
         
-        # Reset environment to get initial state
+        # Reset environment
         state, _ = env.reset()
         
-        # Run episode until termination or max_steps
+        # Run episode
         for step in range(max_steps):
-            # Store current state
             states.append(state)
             
             # Get action from policy
             action = policy(state)
             
-            # Take action in environment
+            # Take step
             next_state, reward, terminated, truncated, _ = env.step(action)
-            
-            # Store the reward received
             rewards.append(reward)
             
-            # Update to next state
             state = next_state
             
-            # Check if episode is finished
             if terminated or truncated:
                 break
         
-        # First-visit Monte Carlo: calculate returns and update values
+        # Calculate returns and update with first-visit Monte Carlo
         G = 0
         visited = set()
         
-        # Process episode backwards to calculate returns
+        # Work backwards through the episode
         for t in range(len(states) - 1, -1, -1):
-            # Calculate return: G_t = R_{t+1} + gamma * G_{t+1}
             G = rewards[t] + gamma * G
-            
             state_t = states[t]
             
-            # Only update if this is the first visit to this state in this episode
+            # First-visit update
             if state_t not in visited:
                 visited.add(state_t)
-                # Incremental update: V(s) = V(s) + alpha * (G - V(s))
-                V[state_t] = V[state_t] + alpha * (G - V[state_t])
+                # Use incremental update with alpha
+                V[state_t] += alpha * (G - V[state_t])
     
     return V
