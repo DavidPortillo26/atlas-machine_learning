@@ -32,7 +32,11 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
         state, _ = env.reset()
         
         # Run episode
+        done = False
         for step in range(max_steps):
+            if done:
+                break
+                
             # Store current state
             states.append(state)
             
@@ -42,34 +46,30 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
             # Take action
             next_state, reward, terminated, truncated, _ = env.step(action)
             
-            # Store reward
+            # Store reward received after taking action in current state
             rewards.append(reward)
             
             # Update state
             state = next_state
             
             # Check if episode is done
-            if terminated or truncated:
-                break
+            done = terminated or truncated
         
-        # Calculate returns for each state in the episode (first-visit)
-        visited_states = set()
-        G = 0  # Return
+        # Calculate returns using first-visit Monte Carlo
+        G = 0
+        visited = set()
         
-        # Process states in reverse order (from end to beginning)
+        # Work backwards through the episode
         for t in reversed(range(len(states))):
+            # Update return: G = reward + gamma * G
+            G = rewards[t] + gamma * G
+            
             state_t = states[t]
-            reward_t = rewards[t]
             
-            # Calculate return G_t = R_{t+1} + gamma * G_{t+1}
-            G = reward_t + gamma * G
-            
-            # First-visit Monte Carlo: only update if this is the first visit to this state
-            if state_t not in visited_states:
-                visited_states.add(state_t)
-                
-                # Update value estimate using incremental update
-                # V(s) = V(s) + alpha * (G - V(s))
+            # First-visit: only update if we haven't seen this state before in this episode
+            if state_t not in visited:
+                visited.add(state_t)
+                # Update value function with incremental average
                 V[state_t] = V[state_t] + alpha * (G - V[state_t])
     
     return V
