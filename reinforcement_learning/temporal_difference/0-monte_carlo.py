@@ -23,9 +23,6 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
     # Work with a copy of V
     V = V.copy()
     
-    # Set print options to suppress scientific notation
-    np.set_printoptions(precision=4, suppress=True)
-    
     for episode in range(episodes):
         # Generate episode
         states = []
@@ -52,16 +49,10 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
         
         # First-visit Monte Carlo updates
         G = 0
-        visited = set()
-        
-        # Work backwards through the episode
         for t in range(len(states) - 1, -1, -1):
             G = rewards[t] + gamma * G
             state_t = states[t]
-            
-            # First-visit update
-            if state_t not in visited:
-                visited.add(state_t)
-                V[state_t] = V[state_t] + alpha * (G - V[state_t])
+            V[state_t] = V[state_t] + alpha * (G - V[state_t])
+
     
     return V
