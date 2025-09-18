@@ -20,15 +20,18 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
     Returns:
         V: the updated value estimate
     """
-    # Use incremental Monte Carlo with alpha updates
+    # Work with a copy of V
     V = V.copy()
+    
+    # Set print options to suppress scientific notation
+    np.set_printoptions(precision=4, suppress=True)
     
     for episode in range(episodes):
         # Generate episode
         states = []
         rewards = []
         
-        # Reset environment
+        # Reset environment - don't override the seeding
         state, _ = env.reset()
         
         # Run episode
@@ -47,7 +50,7 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
             if terminated or truncated:
                 break
         
-        # Calculate returns and update with first-visit Monte Carlo
+        # First-visit Monte Carlo updates
         G = 0
         visited = set()
         
@@ -59,7 +62,6 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
             # First-visit update
             if state_t not in visited:
                 visited.add(state_t)
-                # Use incremental update with alpha
-                V[state_t] += alpha * (G - V[state_t])
+                V[state_t] = V[state_t] + alpha * (G - V[state_t])
     
     return V
