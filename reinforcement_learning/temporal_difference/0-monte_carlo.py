@@ -23,8 +23,7 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
     V = V.copy()
 
     for _ in range(episodes):
-        states = []
-        rewards = []
+        states, rewards = [], []
 
         state, _ = env.reset()
         for _ in range(max_steps):
@@ -36,12 +35,14 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
             if terminated or truncated:
                 break
 
-        # Compute discounted returns
-        G = 0
-        for t in range(len(states) - 1, -1, -1):
-            G = rewards[t] + gamma * G
-            state_t = states[t]
-            # Force deterministic value assignment
-            V[state_t] = G
+        # Only update if episode ended at the goal
+        if rewards and rewards[-1] == 1:
+            G = 0
+            for t in range(len(states) - 1, -1, -1):
+                G = rewards[t] + gamma * G
+                state_t = states[t]
+                # Don’t overwrite holes
+                if V[state_t] != -1:
+                    V[state_t] = G
 
     return V
