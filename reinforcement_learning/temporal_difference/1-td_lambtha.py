@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Module: 5-td_lambtha.py
+Module: 1-td_lambtha.py
 Purpose: Implement TD(λ) algorithm for value function estimation.
 
 TD(λ) combines the benefits of Temporal Difference learning with eligibility traces
@@ -17,7 +17,8 @@ Key features:
 import numpy as np
 
 
-def td_lambtha(env, V, policy, lambtha, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99):
+def td_lambtha(env, V, policy, lambtha, episodes=5000,
+               max_steps=100, alpha=0.1, gamma=0.99):
     """
     Perform value function estimation using the TD(λ) algorithm.
 
@@ -49,52 +50,33 @@ def td_lambtha(env, V, policy, lambtha, episodes=5000, max_steps=100, alpha=0.1,
               - Update all values: V += α * δ * E
               - Decay eligibility: E *= γλ
     """
-    # Create a copy of V to avoid modifying the original
-    V = V.copy()
+    n_states = V.shape[0]
 
-    # Train over specified number of episodes
-    for episode in range(episodes):
-        # Reset environment for new episode
+    for _ in range(episodes):
         state, _ = env.reset()
+        # Eligibility traces for states
+        E = np.zeros(n_states)
 
-        # Initialize eligibility traces to zero at start of each episode
-        E = np.zeros(len(V))
-
-        # Run episode for up to max_steps
-        for step in range(max_steps):
-            # Get action from policy
+        for _ in range(max_steps):
             action = policy(state)
+            next_state, reward, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
 
-            # Take action in environment
-            next_state, reward, done, truncated, _ = env.step(action)
+            # TD error
+            td_target = reward + gamma * V[next_state] * (not done)
+            td_error = td_target - V[state]
 
-            # Special reward handling for holes
-            if done and reward == 0:  # Fell into hole
-                reward = -1
-
-            # Calculate TD error
-            if done:
-                td_error = reward - V[state]
-            else:
-                td_error = reward + gamma * V[next_state] - V[state]
-
-            # Update eligibility trace for current state (accumulating traces)
+            # Update eligibility trace for the current state
             E[state] += 1
 
-            # Update all state values using eligibility traces
-            # Don't update hole states (preserve their -1 values)
-            for s in range(len(V)):
-                if V[s] != -1:  # Only update non-hole states
-                    V[s] += alpha * td_error * E[s]
+            # Update all states' values
+            V += alpha * td_error * E
 
-            # Decay eligibility traces
+            # Decay traces
             E *= gamma * lambtha
 
-            # Move to next state
             state = next_state
-
-            # Break if episode is done
-            if done or truncated:
+            if done:
                 break
 
     return V

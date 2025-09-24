@@ -3,8 +3,8 @@
 import gymnasium as gym
 import numpy as np
 import random
-td_lambtha = __import__('1-td_lambtha').td_lambtha
 
+td_lambtha = __import__('1-td_lambtha').td_lambtha
 
 def set_seed(env, seed=0):
     env.reset(seed=seed)
@@ -38,6 +38,6 @@ def policy(s):
             return UP
 
 V = np.where(env.unwrapped.desc == b'H', -1, 1).reshape(64).astype('float64')
-np.set_printoptions(precision=4)
+np.set_printoptions(precision=4, suppress=True)
 
-print(td_lambtha(env, V, policy, 0.9).reshape((8, 8)))
+print(td_lambtha(env, V, policy, 0.9, episodes=5000, alpha=0.3).reshape((8, 8)))
