@@ -21,29 +21,29 @@ LEFT, DOWN, RIGHT, UP = 0, 1, 2, 3
 
 # Fully deterministic policy: always move toward the goal avoiding holes
 def policy(s):
-    row, col = divmod(s, 8)
-    goal_row, goal_col = 7, 7
+    p = np.random.uniform()
+    if p > 0.5:
+        if s % 8 != 7 and env.unwrapped.desc[s // 8, s % 8 + 1] != b'H':
+            return RIGHT
+        elif s // 8 != 7 and env.unwrapped.desc[s // 8 + 1, s % 8] != b'H':
+            return DOWN
+        elif s // 8 != 0 and env.unwrapped.desc[s // 8 - 1, s % 8] != b'H':
+            return UP
+        else:
+            return LEFT
+    else:
+        if s // 8 != 7 and env.unwrapped.desc[s // 8 + 1, s % 8] != b'H':
+            return DOWN
+        elif s % 8 != 7 and env.unwrapped.desc[s // 8, s % 8 + 1] != b'H':
+            return RIGHT
+        elif s % 8 != 0 and env.unwrapped.desc[s // 8, s % 8 - 1] != b'H':
+            return LEFT
+        else:
+            return UP
 
-    # Move DOWN if possible
-    if row < goal_row and env.unwrapped.desc[row + 1, col] != b'H':
-        return DOWN
-    # Move RIGHT if possible
-    if col < goal_col and env.unwrapped.desc[row, col + 1] != b'H':
-        return RIGHT
-    # Move UP if necessary
-    if row > goal_row and env.unwrapped.desc[row - 1, col] != b'H':
-        return UP
-    # Move LEFT if necessary
-    if col > goal_col and env.unwrapped.desc[row, col - 1] != b'H':
-        return LEFT
 
-    # fallback random choice if stuck
-    return np.random.choice([LEFT, RIGHT, UP, DOWN])
-
-
-# V will be initialized inside td_lambtha
-V = np.zeros(env.observation_space.n, dtype=np.float64)
+V = np.where(env.unwrapped.desc == b'H', -1, 1).reshape(64).astype('float64')
 
 np.set_printoptions(precision=4, suppress=True)
 
-print(td_lambtha(env, V, policy, lambtha=0.9).reshape((8, 8)))
+print(td_lambtha(env, V, policy, 0.9, episodes=5000, alpha=0.1).reshape((8, 8)))
