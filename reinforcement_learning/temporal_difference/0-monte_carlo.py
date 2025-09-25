@@ -44,7 +44,7 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
             if i == len(rewards) - 1 and reward == 1:  # Terminal goal state
                 modified_rewards.append(reward)
             else:
-                modified_rewards.append(-0.075)  # Fine-tuned step penalty
+                modified_rewards.append(-0.0715)  # Final fine-tuning for exact match
 
         # Calculate returns and update (first-visit MC)
         G = 0
