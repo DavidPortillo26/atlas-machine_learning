@@ -28,7 +28,8 @@ def policy(matrix, weight):
 
 def policy_gradient(state, weight):
     """
-    Computes the Monte-Carlo policy gradient based on a state and weight matrix.
+    Computes the Monte-Carlo policy gradient
+    based on a state and weight matrix.
 
     Args:
         state: matrix representing the current observation of the environment
@@ -48,12 +49,14 @@ def policy_gradient(state, weight):
     action = np.random.choice(len(probs[0]), p=probs[0])
 
     # Compute the policy gradient
-    # For Monte-Carlo policy gradient: ∇log(π(a|s)) = state * (indicator - prob)
+    # For Monte-Carlo policy gradient:
+    # ∇log(π(a|s)) = state * (indicator - prob)
     # Where indicator is 1 for the chosen action, 0 otherwise
     indicator = np.zeros_like(probs[0])
     indicator[action] = 1
 
-    # Gradient computation: outer product of state and (indicator - probability)
+    # Gradient computation: outer product of state
+    # and (indicator - probability)
     gradient = np.outer(state[0], indicator - probs[0])
 
     return action, gradient
