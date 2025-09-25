@@ -36,3 +36,8 @@ def policy(s):
             return LEFT
         else:
             return UP
+
+V = np.where(env.unwrapped.desc == b'H', -1, 1).reshape(64).astype('float64')
+np.set_printoptions(precision=4)
+
+print(monte_carlo(env, V, policy).reshape((8, 8)))
