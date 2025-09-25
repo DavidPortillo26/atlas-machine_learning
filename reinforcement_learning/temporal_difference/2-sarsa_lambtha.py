@@ -70,6 +70,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100, alpha=0.1, gamm
                 action = next_action
 
         # Decay epsilon
-        epsilon = max(min_epsilon, epsilon - epsilon_decay)
+        if episode < episodes - 1:  # Don't decay on last episode
+            epsilon = max(min_epsilon, epsilon - epsilon_decay)
 
     return Q
