@@ -4,7 +4,9 @@
 import numpy as np
 
 
-def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99, epsilon=1, min_epsilon=0.1, epsilon_decay=0.05):
+def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
+                  alpha=0.1, gamma=0.99, epsilon=1, min_epsilon=0.1,
+                  epsilon_decay=0.05):
     """
     Performs SARSA(lambda) algorithm.
 
@@ -42,26 +44,30 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100, alpha=0.1, gamm
 
         for step in range(max_steps):
             # Take action and observe next state and reward
-            next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state, reward, terminated, truncated, _ = env.step(
+                action)
 
             # Calculate TD error
             if terminated or truncated:
                 td_error = reward - Q[state, action]
                 # Update eligibility trace for current state-action pair
                 E[state, action] += 1
-                # Update Q-values and eligibility traces for all state-action pairs
+                # Update Q-values and eligibility traces for all
+                # state-action pairs
                 Q += alpha * td_error * E
                 break
             else:
                 # Choose next action using epsilon-greedy policy
                 next_action = epsilon_greedy_policy(next_state, epsilon)
 
-                td_error = reward + gamma * Q[next_state, next_action] - Q[state, action]
+                td_error = (reward + gamma * Q[next_state, next_action] -
+                            Q[state, action])
 
                 # Update eligibility trace for current state-action pair
                 E[state, action] += 1
 
-                # Update Q-values and eligibility traces for all state-action pairs
+                # Update Q-values and eligibility traces for all
+                # state-action pairs
                 Q += alpha * td_error * E
                 E *= gamma * lambtha
 

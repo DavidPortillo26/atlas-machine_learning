@@ -24,18 +24,21 @@ def td_lambtha(env, V, policy, lambtha, episodes=5000,
 
         for _ in range(max_steps):
             action = policy(state)
-            next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state, reward, terminated, truncated, _ = env.step(
+                action)
             done = terminated or truncated
 
             if terminated and reward == 1:
                 # Goal reached
                 td_target = reward
-            elif env.unwrapped.desc[state // 8, state % 8] == b'H':
+            elif env.unwrapped.desc[state // 8,
+                                     state % 8] == b'H':
                 # Current state is hole
                 td_target = -1
             else:
                 # Normal step
-                td_target = reward - 0.08 + gamma * V[next_state] * (not done)
+                td_target = (reward - 0.08 + gamma *
+                             V[next_state] * (not done))
             td_error = td_target - V[state]
 
             E[state] += 1

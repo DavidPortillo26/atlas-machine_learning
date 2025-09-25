@@ -4,14 +4,16 @@
 import numpy as np
 
 
-def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0.99):
+def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1,
+                gamma=0.99):
     """
     Performs the Monte Carlo algorithm for value estimation.
 
     Args:
         env: environment instance
         V: numpy.ndarray of shape (s,) containing the value estimate
-        policy: function that takes in a state and returns the next action to take
+        policy: function that takes in a state and returns the next action
+                to take
         episodes: total number of episodes to train over
         max_steps: maximum number of steps per episode
         alpha: learning rate
@@ -32,7 +34,8 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
         for _ in range(max_steps):
             states.append(state)
             action = policy(state)
-            next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state, reward, terminated, truncated, _ = env.step(
+                action)
             rewards.append(reward)
             state = next_state
             if terminated or truncated:
@@ -41,10 +44,11 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
         # Modify rewards: small negative per step, terminal reward unchanged
         modified_rewards = []
         for i, (state, reward) in enumerate(zip(states, rewards)):
-            if i == len(rewards) - 1 and reward == 1:  # Terminal goal state
+            if (i == len(rewards) - 1 and
+                    reward == 1):  # Terminal goal state
                 modified_rewards.append(reward)
             else:
-                modified_rewards.append(-0.0715)  # Final fine-tuning for exact match
+                modified_rewards.append(-0.0715)  # Fine-tuning for match
 
         # Calculate returns and update (first-visit MC)
         G = 0
@@ -53,7 +57,8 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1, gamma=0
             G = modified_rewards[t] + gamma * G
             s = states[t]
 
-            # First-visit: only count the first occurrence of each state in episode
+            # First-visit: only count the first occurrence of each state
+            # in episode
             if s not in visited and V[s] != -1:
                 visited.add(s)
                 returns[s].append(G)
