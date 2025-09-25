@@ -2,7 +2,8 @@
 """
 Policy Gradient Training Module
 
-This module implements the training loop for policy gradient reinforcement learning.
+This module implements the training loop for
+policy gradient reinforcement learning.
 """
 
 import numpy as np
@@ -20,7 +21,8 @@ def train(env, nb_episodes, alpha=0.000045, gamma=0.98):
         gamma: the discount factor
 
     Returns:
-        all values of the score (sum of all rewards during one episode loop)
+        all values of the score (sum of all rewards
+        during one episode loop)
     """
     # Get environment dimensions
     state_dim = env.observation_space.shape[0]
