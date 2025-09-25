@@ -9,18 +9,32 @@ def monte_carlo(env, V, policy, episodes=5000, max_steps=100, alpha=0.1,
     """
     Performs the Monte Carlo algorithm for value estimation.
 
+    This implementation uses first-visit Monte Carlo to estimate the value
+    function by averaging returns from complete episodes. It includes reward
+    shaping to improve convergence on the FrozenLake environment.
+
     Args:
-        env: environment instance
-        V: numpy.ndarray of shape (s,) containing the value estimate
-        policy: function that takes in a state and returns the next action
-                to take
-        episodes: total number of episodes to train over
-        max_steps: maximum number of steps per episode
-        alpha: learning rate
-        gamma: discount rate
+        env: Gymnasium environment instance supporting reset() and step()
+        V: numpy.ndarray of shape (s,) containing initial value estimates
+        policy: callable function mapping state -> action for policy evaluation
+        episodes: int - total number of episodes to train over (default: 5000)
+        max_steps: int - maximum number of steps per episode (default: 100)
+        alpha: float - learning rate (unused in this implementation) (default: 0.1)
+        gamma: float - discount factor for future rewards (default: 0.99)
 
     Returns:
-        V: the updated value estimate
+        numpy.ndarray: Updated value estimates of shape (s,)
+
+    Algorithm:
+        1. For each episode, generate complete trajectory following policy
+        2. Apply reward shaping (step penalty for non-terminal states)
+        3. Calculate discounted returns G_t for each state visited
+        4. Update V(s) as running average of all returns for state s
+        5. Only first visit to each state in episode counts (first-visit MC)
+
+    Note:
+        - Hole states (V[s] == -1) are never updated
+        - Uses reward shaping with -0.0715 step penalty for better convergence
     """
     V = V.copy()
 
