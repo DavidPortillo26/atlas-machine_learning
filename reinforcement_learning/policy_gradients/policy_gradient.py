@@ -3,8 +3,8 @@
 Policy Gradient Implementation
 
 This module implements policy gradient methods for reinforcement learning.
-It contains functions for computing policy probabilities using softmax activation
-and related policy gradient algorithms.
+It contains functions for computing policy probabilities
+using softmax activation and related policy gradient algorithms.
 """
 
 import numpy as np
