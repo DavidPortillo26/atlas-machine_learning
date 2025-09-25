@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import gymnasium as gym
-import matplotlib.pyplot as plt
 import numpy as np
 import random
 train = __import__('train').train
@@ -14,8 +13,9 @@ def set_seed(env, seed=0):
 env = gym.make('CartPole-v1')
 set_seed(env, 0)
 
-scores = train(env, 10000)
+# Run training for fewer episodes for testing
+scores = train(env, 20)
 
-plt.plot(np.arange(len(scores)), scores)
-plt.show()
+print("Final scores:", scores)
+print("Average score:", np.mean(scores))
 env.close()
