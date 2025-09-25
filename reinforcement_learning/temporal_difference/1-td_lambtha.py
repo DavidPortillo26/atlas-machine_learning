@@ -17,7 +17,8 @@ def td_lambtha(env, V, policy, lambtha, episodes=5000,
 
     Args:
         env: Environment instance (OpenAI Gym-like).
-        V (np.ndarray): Initial state-value estimates (shape = number of states).
+        V (np.ndarray): Initial state-value estimates
+        (shape = number of states).
         policy (callable): Function mapping state -> action.
         lambtha (float): Eligibility trace decay rate (λ).
         episodes (int): Number of episodes to run.
