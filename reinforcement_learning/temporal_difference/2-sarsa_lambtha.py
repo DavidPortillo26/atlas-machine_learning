@@ -45,7 +45,8 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
             action = np.argmax(Q[state])
 
         for _ in range(max_steps):
-            next_state, reward, terminated, truncated, _ = env.step(action)
+            next_state, reward, terminated, truncated, _ = env.step(
+                action)
 
             # Choose next action with epsilon-greedy policy
             if np.random.rand() < epsilon:
@@ -54,7 +55,8 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
                 next_action = np.argmax(Q[next_state])
 
             # TD error calculation
-            td_error = reward + gamma * Q[next_state, next_action] - Q[state, action]
+            td_error = (reward + gamma * Q[next_state, next_action] -
+                        Q[state, action])
 
             # Update eligibility traces
             eligibility_trace[state, action] += 1
@@ -71,6 +73,7 @@ def sarsa_lambtha(env, Q, lambtha, episodes=5000, max_steps=100,
                 break
 
         # Update epsilon
-        epsilon = min_epsilon + (starting_epsilon - min_epsilon) * np.exp(-epsilon_decay * ep)
+        epsilon = (min_epsilon + (starting_epsilon - min_epsilon) *
+                   np.exp(-epsilon_decay * ep))
 
     return Q
