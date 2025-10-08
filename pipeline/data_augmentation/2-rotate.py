@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Module that rotates an image 90 degrees counter-clockwise using TensorFlow."""
+"""Module that rotates an image 90 degrees
+counter-clockwise using TensorFlow."""
 
 import tensorflow as tf
 
