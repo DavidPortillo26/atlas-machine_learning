@@ -3,9 +3,9 @@ import tensorflow as tf
 """
 Module that defines a function to flip images horizontally using TensorFlow.
 
-This module contains the function `flip_image(image)`, which takes a 3D 
-TensorFlow tensor representing an image and returns a horizontally flipped 
-version of that image. It can be used for data augmentation or preprocessing 
+This module contains the function `flip_image(image)`, which takes a 3D
+TensorFlow tensor representing an image and returns a horizontally flipped
+version of that image. It can be used for data augmentation or preprocessing
 in computer vision tasks.
 """
 
