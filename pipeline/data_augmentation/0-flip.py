@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import tensorflow as tf
+"""
+Module that defines a function to flip images horizontally using TensorFlow.
+"""
 
 
 def flip_image(image):
