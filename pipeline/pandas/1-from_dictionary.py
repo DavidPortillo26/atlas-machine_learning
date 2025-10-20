@@ -2,7 +2,8 @@
 """
 Module: 1-from_dictionary
 
-Builds a pandas DataFrame from a plain Python dictionary and exposes it as `df`.
+Builds a pandas DataFrame from a
+plain Python dictionary and exposes it as `df`.
 
 Columns
 -------
