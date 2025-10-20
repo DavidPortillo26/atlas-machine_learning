@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+import pandas as pd
+
+
+def from_numpy(array):
+
 """
     Create a pandas DataFrame from a NumPy array.
 
@@ -17,10 +22,6 @@
     -----
     Assumes there are at most 26 columns (A - Z).
     """
-import pandas as pd
-
-
-def from_numpy(array):
 
     if getattr(array, "ndim", None) != 2:
         raise ValueError("from_numpy expects a 2D np.mdarray (rows, cols).")
