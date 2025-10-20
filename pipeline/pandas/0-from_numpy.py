@@ -2,7 +2,6 @@
 
 import pandas as pd
 
-
 """
     Create a pandas DataFrame from a NumPy array.
 
@@ -21,6 +20,7 @@ import pandas as pd
     Assumes there are at most 26 columns (A - Z).
     """
 
+
 def from_numpy(array):
 
     if getattr(array, "ndim", None) != 2:
@@ -29,7 +29,7 @@ def from_numpy(array):
     # Gets number of columns
     n_cols = array.shape[1]
     if n_cols > 26:
-        raise ValueError(" This function supports at most 26 columns (A -Z).")
+        raise ValueError(" This function supports at most 26 columns (A -Z). ")
 
     # Creates column labels
     columns = [chr(65 + i ) for i in range(n_cols)]
