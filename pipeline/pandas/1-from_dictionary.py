@@ -2,37 +2,24 @@
 """
 Module: 1-from_dictionary
 
-Builds a pandas DataFrame from a plain Python dictionary and exposes it as
-the variable `df`.
+Builds a pandas DataFrame from a plain Python dictionary and exposes it as `df`.
 
-Data
-----
-Columns:
-    - "First": float values [0.0, 0.5, 1.0, 1.5]
-    - "Second": string values ["one", "two", "three", "four"]
+Columns
+-------
+- "First": float values [0.0, 0.5, 1.0, 1.5]
+- "Second": string values ["one", "two", "three", "four"]
 
-Index:
-    - Row labels: ["A", "B", "C", "D"]
-
-Notes
+Index
 -----
-This module intentionally defines a top-level variable `df` (not a function),
-as required by the exercise and by 1-main.py which imports `df`.
+["A", "B", "C", "D"]
 """
 
 import pandas as pd
 
-# Column data as a plain Python dictionary. Keys become column names.
-_data = {
-    "First": [0.0, 0.5, 1.0, 1.5],
-    "Second": ["one", "two", "three", "four"],
-}
-
-# Row labels (index) in the required order.
-_index = ["A", "B", "C", "D"]
-
-# The DataFrame expected by 1-main.py
-df = pd.DataFrame(_data, index=_index)
-
-# Optional: explicitly export only df if your tooling inspects __all__.
-__all__ = ["df"]
+df = pd.DataFrame(
+    {
+        "First": [0.0, 0.5, 1.0, 1.5],
+        "Second": ["one", "two", "three", "four"],
+    },
+    index=["A", "B", "C", "D"],
+)
