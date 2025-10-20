@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Module: 0-from_numpy
-Provides `from_numpy(array)` to convert a 2D NumPy ndarray into a pandas DataFrame.
+Provides `from_numpy(array)` to convert a
+2D NumPy ndarray into a pandas DataFrame.
 Columns are labeled 'A'..'Z' in order; at most 26 columns are supported.
 """
 import pandas as pd
