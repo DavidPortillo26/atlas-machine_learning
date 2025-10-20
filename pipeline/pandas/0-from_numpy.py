@@ -32,5 +32,5 @@ def from_numpy(array):
         raise ValueError(" This function supports at most 26 columns (A -Z). ")
 
     # Creates column labels
-    columns = [chr(65 + i ) for i in range(n_cols)]
+    columns = [chr(65 + i )for i in range(n_cols)]
     return pd.DataFrame(array, columns=columns)
