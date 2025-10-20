@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import pandas as pd
-
 """
     Create a pandas DataFrame from a NumPy array.
 
@@ -19,6 +17,7 @@ import pandas as pd
     -----
     Assumes there are at most 26 columns (A - Z).
     """
+import pandas as pd
 
 
 def from_numpy(array):
