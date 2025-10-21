@@ -20,8 +20,10 @@ def hierarchy(df1, df2):
     Returns
     -------
     pandas.DataFrame
-        Multi-indexed DataFrame whose first level is `Timestamp` (chronological)
-        and the second level identifies the exchange (`bitstamp` or `coinbase`).
+        Multi-indexed DataFrame whose first level is
+        `Timestamp` (chronological)
+        and the second level identifies the exchange
+        (`bitstamp` or `coinbase`).
     """
     start_timestamp = 1417411980
     end_timestamp = 1417417980
