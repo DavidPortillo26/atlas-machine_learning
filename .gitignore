@@ -8,3 +8,28 @@ __pycache__/
 
 # AutoROM ROMs
 **/AutoROM/roms/
+
+cat >> .gitignore <<'EOF'
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints/
+
+# Virtual environments / installed packages
+.venv/
+venv/
+env/
+**/lib/python*/site-packages/
+reinforcement_learning/deep_q_learning/Q/
+supervised_learning/transformer_apps/hf-env/
+
+# Data (keep large datasets out of Git)
+*.csv
+data/
+EOF
+
+git add .gitignore
+git commit -m "chore: stop tracking large CSVs/venvs; add .gitignore"
