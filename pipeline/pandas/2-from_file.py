@@ -29,6 +29,7 @@ def from_file(filename, delimiter):
     Step-by-step:
         1. pandas opens the file located at `filename`.
         2. It looks at how the columns are separated using `delimiter`.
-        3. It creates an in-memory table (the DataFrame) that you can work with.
+        3. It creates an in-memory table (the DataFrame)
+        that you can work with.
     """
     return pd.read_csv(filename, sep=delimiter)
