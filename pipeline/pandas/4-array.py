@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """Extract the last High/Close observations as a NumPy array."""
 
-import numpy as np
-import pandas as pd
-
 
 def array(df):
     """
