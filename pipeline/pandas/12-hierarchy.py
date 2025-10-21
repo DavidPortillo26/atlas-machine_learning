@@ -39,5 +39,5 @@ def hierarchy(df1, df2):
 
     # Move timestamp to the leading level and sort for chronological display.
     combined = combined.swaplevel(0, 1)
-    combined.index.names = ['Timestamp', 'Exchange']
+    combined.index = combined.index.set_names(['Timestamp', None])
     return combined.sort_index(level=[0, 1])
