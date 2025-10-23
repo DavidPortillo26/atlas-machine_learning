@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Display the earliest SpaceX launch with rocket and launchpad details."""
+"""Display the earliest upcoming SpaceX launch with details."""
 import sys
 
 import requests
 
 
-LAUNCHES_URL = "https://api.spacexdata.com/v5/launches"
+LAUNCHES_URL = "https://api.spacexdata.com/v5/launches/upcoming"
 ROCKETS_URL = "https://api.spacexdata.com/v4/rockets"
 LAUNCHPADS_URL = "https://api.spacexdata.com/v4/launchpads"
 
@@ -18,7 +18,7 @@ def _fetch_json(url):
 
 
 def _earliest_launch():
-    """Return the earliest launch data structure from the SpaceX API."""
+    """Return the earliest upcoming launch data structure from the SpaceX API."""
     launches = _fetch_json(LAUNCHES_URL)
     if not launches:
         return None
