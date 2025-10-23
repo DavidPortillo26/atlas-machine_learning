@@ -26,7 +26,8 @@ def _parse_passenger_capacity(value):
 
 def availableShips(passengerCount):
     """
-    Return a list of starship names that can carry at least passengerCount passengers.
+    Return a list of starship names that can carry at
+    least passengerCount passengers.
 
     Args:
         passengerCount (int): Minimum passenger capacity required.
