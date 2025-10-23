@@ -47,7 +47,8 @@ def availableShips(passengerCount):
 
         data = response.json()
         for starship in data.get("results", []):
-            capacity = _parse_passenger_capacity(starship.get("passengers", ""))
+            passengers = starship.get("passengers", "")
+            capacity = _parse_passenger_capacity(passengers)
             if capacity >= passengerCount:
                 ships.append(starship.get("name"))
 
