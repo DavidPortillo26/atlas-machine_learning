@@ -1,0 +1,2 @@
+// Insert Holberton school document into the provided database
+db.school.insert({ name: "Holberton school" });
